@@ -2,8 +2,12 @@ package router
 
 import (
 	"github.com/gorilla/mux"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
+
+	_ "github.com/seeley-chen/vsb-server/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/seeley-chen/vsb-server/config"
 	userHandler "github.com/seeley-chen/vsb-server/internal/handler/user"
@@ -32,6 +36,8 @@ func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router
 	protected := r.PathPrefix("/api").Subrouter()
 	protected.Use(middleware.Auth(cfg.JWTSecret))
 	userHdl.RegisterProtectedRoutes(protected)
+
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	return r
 }
