@@ -2,21 +2,21 @@ package config
 
 import (
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	ServerPort    string // 服务器端口
-	MongoURI      string // MongoDB URI
-	MongoDB       string // MongoDB 数据库名称
-	JWTSecret     string // JWT 密钥
-	JWTExpiration string // JWT 过期时间
+	ServerPort    string
+	MongoURI      string
+	MongoDB       string
+	JWTSecret     string
+	JWTExpiration string // 原始字符串，如 "24h"
 }
 
 func Load() *Config {
-	// 加载 .env 文件（忽略错误，如果不存在则使用系统环境变量）
-	_ = godotenv.Load()
+	_ = godotenv.Load() // 忽略错误，允许从系统环境变量读取
 
 	return &Config{
 		ServerPort:    getEnv("SERVER_PORT", "8080"),
@@ -27,9 +27,18 @@ func Load() *Config {
 	}
 }
 
-func getEnv(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
+// GetJWTExpireDuration 将字符串解析为 time.Duration
+func (c *Config) GetJWTExpireDuration() time.Duration {
+	d, err := time.ParseDuration(c.JWTExpiration)
+	if err != nil {
+		return 24 * time.Hour // 解析失败默认 24h
 	}
-	return defaultValue
+	return d
+}
+
+func getEnv(key, fallback string) string {
+	if val := os.Getenv(key); val != "" {
+		return val
+	}
+	return fallback
 }

@@ -1,8 +1,6 @@
 package router
 
 import (
-	"time"
-
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
@@ -24,8 +22,7 @@ func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router
 
 	// 初始化用户模块
 	userRepo := repo.NewRepository(db)
-	jwtExpire, _ := time.ParseDuration(cfg.JWTExpiration)
-	userSvc := svc.NewService(userRepo, cfg.JWTSecret, jwtExpire)
+	userSvc := svc.NewService(userRepo, cfg.JWTSecret, cfg.GetJWTExpireDuration())
 	userHdl := userHandler.NewHandler(userSvc)
 
 	// 注册公开路由（无需鉴权）
@@ -35,9 +32,6 @@ func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router
 	protected := r.PathPrefix("/api").Subrouter()
 	protected.Use(middleware.Auth(cfg.JWTSecret))
 	userHdl.RegisterProtectedRoutes(protected)
-
-	// Swagger 文档（如需启用，取消注释并 import）
-	// r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	return r
 }
