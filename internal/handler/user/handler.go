@@ -25,4 +25,5 @@ func (h *Handler) RegisterProtectedRoutes(r *mux.Router) {
 	sub.HandleFunc("/create", h.Create).Methods("POST")
 	sub.HandleFunc("/list", h.List).Methods("GET")
 	sub.HandleFunc("/delete/{userId}", h.Delete).Methods("DELETE")
+	sub.HandleFunc("/edit/{userId}", h.Edit).Methods("PUT")
 }

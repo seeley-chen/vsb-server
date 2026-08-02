@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -94,6 +95,33 @@ func (r *Repository) DeleteUserById(ctx context.Context, userId string) error {
 
 	if result.DeletedCount == 0 {
 		return mongo.ErrNoDocuments // 没找到要删除的用户
+	}
+
+	return nil
+}
+
+// UpdateUserById 根据用户ID更新用户
+func (r *Repository) UpdateUserById(ctx context.Context, userId string, update *model.User) error {
+	setFields := bson.M{
+		"username":  update.Username,
+		"email":     update.Email,
+		"account":   update.Account,
+		"phone":     update.Phone,
+		"updatedAt": time.Now(),
+	}
+
+	if update.PasswordHash != "" {
+		setFields["PasswordHash"] = update.PasswordHash
+	}
+
+	result, err := r.collection.UpdateOne(ctx, bson.M{"userId": userId}, bson.M{"$set": setFields})
+
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return mongo.ErrNoDocuments // 没找到要更新的用户
 	}
 
 	return nil

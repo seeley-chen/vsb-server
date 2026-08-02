@@ -121,3 +121,15 @@ func (s *Service) DeleteUserById(ctx context.Context, userId string) error {
 
 	return nil
 }
+
+// UpdateUserById 根据用户ID更新用户
+func (s *Service) UpdateUserById(ctx context.Context, userId string, update model.User) error {
+	if userId == "" {
+		return ErrUserNotFound
+	}
+	err := s.repo.UpdateUserById(ctx, userId, &update)
+	if err != nil {
+		return err
+	}
+	return nil
+}
