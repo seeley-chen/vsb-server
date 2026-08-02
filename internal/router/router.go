@@ -20,8 +20,7 @@ import (
 func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router {
 	r := mux.NewRouter()
 
-	// 全局中间件
-	r.Use(middleware.CORS)
+	// 全局中间件（CORS 在 main 中包裹整个 Router，此处仅注册业务中间件）
 	r.Use(middleware.Logger(logger))
 
 	// 初始化用户模块

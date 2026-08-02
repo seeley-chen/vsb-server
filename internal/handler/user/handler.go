@@ -16,12 +16,12 @@ func NewHandler(service *svc.Service) *Handler {
 // RegisterPublicRoutes 注册公开路由（无需鉴权）
 func (h *Handler) RegisterPublicRoutes(r *mux.Router) {
 	sub := r.PathPrefix("/api/user").Subrouter()
-	sub.HandleFunc("/register", h.Register).Methods("POST")
 	sub.HandleFunc("/login", h.Login).Methods("POST")
 }
 
-// RegisterProtectedRoutes 注册需要鉴权的路由
+// RegisterProtectedRoutes 注册需要鉴权的路由（父路由已挂载 /api 前缀）
 func (h *Handler) RegisterProtectedRoutes(r *mux.Router) {
-	sub := r.PathPrefix("/api/user").Subrouter()
+	sub := r.PathPrefix("/user").Subrouter()
+	sub.HandleFunc("/create", h.Create).Methods("POST")
 	sub.HandleFunc("/list", h.List).Methods("GET")
 }

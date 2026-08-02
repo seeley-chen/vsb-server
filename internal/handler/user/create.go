@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/seeley-chen/vsb-server/internal/model"
 	"github.com/seeley-chen/vsb-server/internal/service/user"
 	"github.com/seeley-chen/vsb-server/pkg/response"
 	"go.uber.org/zap"
@@ -14,20 +15,21 @@ type RegisterRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Email    string `json:"email"`
+	Account  string `json:"account"`
+	Phone    string `json:"phone"`
 }
 
-// Register 用户注册
-// @Summary 用户注册
-// @Description 使用用户名、密码、邮箱注册新用户
+// Create 创建用户
+// @Description 使用用户名、密码、登录类型注册新用户
 // @Tags 用户管理
 // @Accept json
 // @Produce json
 // @Param request body RegisterRequest true "注册信息"
 // @Success 200 {object} response.Response{data=model.User} "注册成功"
-// @Failure 400 {object} response.Response "参数错误或用户名已存在"
+// @Failure 400 {object} response.Response "参数错误或登录类型不支持"
 // @Failure 500 {object} response.Response "服务器内部错误"
 // @Router /api/user/register [post]
-func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "invalid request body")
@@ -35,12 +37,18 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 简单参数校验
-	if req.Username == "" || req.Password == "" || req.Email == "" {
-		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "username, password and email are required")
+	if req.Account == "" || req.Password == "" {
+		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "account and password are required")
 		return
 	}
 
-	newUser, err := h.svc.Register(r.Context(), req.Username, req.Password, req.Email)
+	username := req.Username
+	if username == "" {
+		username = req.Account
+	}
+
+	newUser, err := h.svc.Create(r.Context(), model.RegisterRequest(req))
+
 	if err != nil {
 		switch err {
 		case user.ErrUsernameExists:

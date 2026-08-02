@@ -36,9 +36,9 @@ func NewService(r *repo.Repository, jwtSecret string, jwtExpire time.Duration) *
 }
 
 // Register 用户注册
-func (s *Service) Register(ctx context.Context, username, password, email string) (*model.User, error) {
+func (s *Service) Create(ctx context.Context, req model.RegisterRequest) (*model.User, error) {
 	// 检查用户名是否已存在
-	existingUser, err := s.repo.FindByUsername(ctx, username)
+	existingUser, err := s.repo.FindByUsername(ctx, req.Username)
 	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, err // 系统错误
 	}
@@ -47,7 +47,7 @@ func (s *Service) Register(ctx context.Context, username, password, email string
 	}
 
 	// 创建新用户
-	user, err := model.NewUser(username, password, email)
+	user, err := model.NewUser(req)
 	if err != nil {
 		return nil, err
 	}

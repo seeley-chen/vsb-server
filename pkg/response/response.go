@@ -56,8 +56,8 @@ func Fail(w http.ResponseWriter, httpStatus int, code int, msg ...string) {
 }
 
 type PageData struct {
-	List      interface{} `json:"list"`       // 列表
-	Total     int64       `json:"total"`      // 总条数
-	PageIndex int         `json:"page_index"` // 页码
-	PageSize  int         `json:"page_size"`  // 每页条数
+	List      interface{} `json:"list"`      // 列表
+	Total     int64       `json:"total"`     // 总条数
+	PageIndex int         `json:"pageIndex"` // 页码
+	PageSize  int         `json:"pageSize"`  // 每页条数
 }

@@ -1,26 +1,47 @@
 package model
 
 import (
+	"crypto/rand"
+	"fmt"
+	"log"
+	"math/big"
 	"time"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// User 用户模型，对应 MongoDB users 集合
-type User struct {
-	UserId       string    `bson:"user_id" json:"user_id"`
-	Username     string    `bson:"username" json:"username"`
-	PasswordHash string    `bson:"password_hash" json:"-"`
-	Email        string    `bson:"email" json:"email"`
-	CreatedAt    time.Time `bson:"created_at" json:"created_at"`
-	UpdatedAt    time.Time `bson:"updated_at" json:"updated_at"`
+// RegisterRequest 用户注册请求
+type RegisterRequest struct {
+	Username string
+	Password string
+	Email    string
+	Account  string
+	Phone    string
 }
 
-// NewUser 创建新用户，自动生成 UUID、加密密码、设置时间戳
-func NewUser(username, password, email string) (*User, error) {
+// User 用户模型，对应 MongoDB users 集合
+type User struct {
+	UserId       string    `bson:"userId" json:"userId"`
+	Username     string    `bson:"username" json:"username"`
+	PasswordHash string    `bson:"passwordHash" json:"-"`
+	Email        string    `bson:"email" json:"email"`
+	CreatedAt    time.Time `bson:"createdAt" json:"createdAt"`
+	UpdatedAt    time.Time `bson:"updatedAt" json:"updatedAt"`
+	Account      string    `bson:"account" json:"account"`
+	Phone        string    `bson:"phone" json:"phone"`
+}
+
+// generateUserID 生成纯数字字符串用户 ID（毫秒时间戳 + 4 位随机数）
+func generateUserID() string {
+	n, _ := rand.Int(rand.Reader, big.NewInt(10000))
+	return fmt.Sprintf("%d%04d", time.Now().UnixMilli(), n.Int64())
+}
+
+// NewUser 创建新用户，自动生成数字 ID、加密密码、设置时间戳
+func NewUser(req RegisterRequest) (*User, error) {
+	log.Println("NewUser", req)
 	// 生成密码哈希
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err // 如果生成密码哈希失败，则返回错误
 	}
@@ -30,10 +51,12 @@ func NewUser(username, password, email string) (*User, error) {
 
 	// 返回用户模型
 	return &User{
-		UserId:       uuid.New().String(),
-		Username:     username,
+		UserId:       generateUserID(),
+		Username:     req.Username,
+		Account:      req.Account,
+		Phone:        req.Phone,
 		PasswordHash: string(hashedPassword),
-		Email:        email,
+		Email:        req.Email,
 		CreatedAt:    now,
 		UpdatedAt:    now,
 	}, nil

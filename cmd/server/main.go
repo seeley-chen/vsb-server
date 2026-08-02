@@ -12,6 +12,7 @@ import (
 
 	"github.com/seeley-chen/vsb-server/config"
 	"github.com/seeley-chen/vsb-server/internal/database"
+	"github.com/seeley-chen/vsb-server/internal/middleware"
 	"github.com/seeley-chen/vsb-server/internal/router"
 	"github.com/seeley-chen/vsb-server/pkg/logger"
 )
@@ -40,7 +41,7 @@ func main() {
 	addr := fmt.Sprintf(":%s", cfg.ServerPort)
 	server := &http.Server{
 		Addr:    addr,
-		Handler: r,
+		Handler: middleware.CORS(r),
 	}
 
 	done := make(chan os.Signal, 1)
