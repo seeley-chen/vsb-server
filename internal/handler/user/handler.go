@@ -24,4 +24,5 @@ func (h *Handler) RegisterProtectedRoutes(r *mux.Router) {
 	sub := r.PathPrefix("/user").Subrouter()
 	sub.HandleFunc("/create", h.Create).Methods("POST")
 	sub.HandleFunc("/list", h.List).Methods("GET")
+	sub.HandleFunc("/delete/{userId}", h.Delete).Methods("DELETE")
 }

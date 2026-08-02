@@ -14,8 +14,11 @@ import (
 
 // 自定义业务错误
 var (
-	ErrUsernameExists  = errors.New("username already exists")
-	ErrUserNotFound    = errors.New("user not found")
+	/** 用户名已存在 */
+	ErrUsernameExists = errors.New("username already exists")
+	/** 用户未找到 */
+	ErrUserNotFound = errors.New("user not found")
+	/** 密码不正确 */
 	ErrInvalidPassword = errors.New("invalid password")
 )
 
@@ -101,4 +104,20 @@ func (s *Service) ListUsers(ctx context.Context, page, pageSize int) ([]model.Us
 	}
 
 	return users, total, nil
+}
+
+// DeleteUserById 根据用户ID删除用户
+func (s *Service) DeleteUserById(ctx context.Context, userId string) error {
+	if userId == "" {
+		return ErrUserNotFound
+	}
+	err := s.repo.DeleteUserById(ctx, userId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+
+	return nil
 }

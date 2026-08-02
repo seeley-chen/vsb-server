@@ -41,7 +41,7 @@ func (r *Repository) FindByUsername(ctx context.Context, username string) (*mode
 // FindByID 根据用户 ID 查找用户
 func (r *Repository) FindByID(ctx context.Context, userId string) (*model.User, error) {
 	var user model.User
-	err := r.collection.FindOne(ctx, bson.M{"user_id": userId}).Decode(&user)
+	err := r.collection.FindOne(ctx, bson.M{"userId": userId}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
@@ -83,4 +83,18 @@ func (r *Repository) EnsureIndexes(ctx context.Context) error {
 		Options: options.Index().SetUnique(true), // 唯一索引
 	})
 	return err // 如果创建索引失败，则返回错误
+}
+
+// DeleteById 根据用户ID删除用户
+func (r *Repository) DeleteUserById(ctx context.Context, userId string) error {
+	result, err := r.collection.DeleteOne(ctx, bson.M{"userId": userId})
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return mongo.ErrNoDocuments // 没找到要删除的用户
+	}
+
+	return nil
 }
