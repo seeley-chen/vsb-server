@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/seeley-chen/vsb-server/internal/model"
-	"github.com/seeley-chen/vsb-server/internal/service/user"
+	model "github.com/seeley-chen/vsb-server/internal/model/permission"
+	"github.com/seeley-chen/vsb-server/internal/service/permission/user"
 	"github.com/seeley-chen/vsb-server/pkg/response"
 	"go.uber.org/zap"
 )

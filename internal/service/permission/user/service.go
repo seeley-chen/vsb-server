@@ -7,8 +7,8 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/seeley-chen/vsb-server/internal/model"
-	repo "github.com/seeley-chen/vsb-server/internal/repository/user"
+	model "github.com/seeley-chen/vsb-server/internal/model/permission"
+	repo "github.com/seeley-chen/vsb-server/internal/repository/permission/user"
 	"github.com/seeley-chen/vsb-server/pkg/jwt"
 )
 

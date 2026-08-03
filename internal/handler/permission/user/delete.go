@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/seeley-chen/vsb-server/internal/service/user"
+	"github.com/seeley-chen/vsb-server/internal/service/permission/user"
 	"github.com/seeley-chen/vsb-server/pkg/response"
 	"go.uber.org/zap"
 )

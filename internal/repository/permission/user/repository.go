@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"github.com/seeley-chen/vsb-server/internal/model"
+	model "github.com/seeley-chen/vsb-server/internal/model/permission"
 )
 
 // Repository 用户数据访问层

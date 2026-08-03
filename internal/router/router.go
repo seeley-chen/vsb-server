@@ -10,10 +10,10 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/seeley-chen/vsb-server/config"
-	userHandler "github.com/seeley-chen/vsb-server/internal/handler/user"
+	userHandler "github.com/seeley-chen/vsb-server/internal/handler/permission/user"
 	"github.com/seeley-chen/vsb-server/internal/middleware"
-	repo "github.com/seeley-chen/vsb-server/internal/repository/user"
-	svc "github.com/seeley-chen/vsb-server/internal/service/user"
+	repo "github.com/seeley-chen/vsb-server/internal/repository/permission/user"
+	svc "github.com/seeley-chen/vsb-server/internal/service/permission/user"
 )
 
 // New 创建并配置路由器
