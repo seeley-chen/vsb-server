@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 
 	model "github.com/seeley-chen/vsb-server/internal/model/permission"
 	repo "github.com/seeley-chen/vsb-server/internal/repository/permission/user"
@@ -123,12 +124,24 @@ func (s *Service) DeleteUserById(ctx context.Context, userId string) error {
 }
 
 // UpdateUserById 根据用户ID更新用户
-func (s *Service) UpdateUserById(ctx context.Context, userId string, update model.User) error {
+func (s *Service) UpdateUserById(ctx context.Context, userId string, update model.User, newPassword string) error {
 	if userId == "" {
 		return ErrUserNotFound
 	}
+
+	if newPassword != "" {
+		hashed, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		update.PasswordHash = string(hashed)
+	}
+
 	err := s.repo.UpdateUserById(ctx, userId, &update)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return ErrUserNotFound
+		}
 		return err
 	}
 	return nil

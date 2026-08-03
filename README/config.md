@@ -11,6 +11,8 @@
 | MONGODB_DB | 否 | vsb | 数据库名称 |
 | JWT_SECRET | ✅ | — | JWT 签名密钥，建议 32 位以上随机字符串 |
 | JWT_EXPIRATION | 否 | 24h | Token 有效期（Go duration 格式） |
+| LOG_LEVEL | 否 | info | 日志级别（debug / info / warn / error） |
+| CORS_ALLOWED_ORIGINS | 否 | — | 允许跨域的前端域名，逗号分隔（如 `https://app.example.com,http://localhost:3000`） |
 
 ## 修改配置
 
@@ -24,4 +26,5 @@
 
 - JWT_SECRET 使用 `openssl rand -hex 32` 生成
 - MongoDB 使用专用读写账号
+- `CORS_ALLOWED_ORIGINS` 仅配置实际前端域名，勿使用 `*`
 - 通过反向代理（Nginx/Caddy）终止 TLS

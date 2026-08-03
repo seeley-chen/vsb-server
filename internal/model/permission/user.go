@@ -3,7 +3,6 @@ package model
 import (
 	"crypto/rand"
 	"fmt"
-	"log"
 	"math/big"
 	"time"
 
@@ -33,13 +32,15 @@ type User struct {
 
 // generateUserID 生成纯数字字符串用户 ID（毫秒时间戳 + 4 位随机数）
 func generateUserID() string {
-	n, _ := rand.Int(rand.Reader, big.NewInt(10000))
+	n, err := rand.Int(rand.Reader, big.NewInt(10000))
+	if err != nil {
+		return fmt.Sprintf("%d", time.Now().UnixMilli())
+	}
 	return fmt.Sprintf("%d%04d", time.Now().UnixMilli(), n.Int64())
 }
 
 // NewUser 创建新用户，自动生成数字 ID、加密密码、设置时间戳
 func NewUser(req RegisterRequest) (*User, error) {
-	log.Println("NewUser", req)
 	// 生成密码哈希
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {

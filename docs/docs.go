@@ -15,7 +15,204 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/user/list": {
+        "/api/permission/user/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建新用户，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "创建用户",
+                "parameters": [
+                    {
+                        "description": "注册信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_permission_user.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_internal_model_permission.User"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或账号已存在",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/user/delete/{userId}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据 userId 删除用户，需要 Bearer Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "删除用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户 ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/user/edit/{userId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据 userId 更新用户信息，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "编辑用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户 ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_permission_user.EditRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/user/list": {
             "get": {
                 "security": [
                     {
@@ -37,13 +234,13 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "页码，默认1",
-                        "name": "page",
+                        "name": "pageIndex",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "每页数量，默认20",
-                        "name": "page_size",
+                        "name": "pageSize",
                         "in": "query"
                     }
                 ],
@@ -53,13 +250,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.Response"
+                                    "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/response.PageData"
+                                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.PageData"
                                         }
                                     }
                                 }
@@ -69,19 +266,19 @@ const docTemplate = `{
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
                         }
                     }
                 }
             }
         },
-        "/api/user/login": {
+        "/api/permission/user/login": {
             "post": {
                 "description": "使用用户名和密码登录，返回 JWT token 和用户信息",
                 "consumes": [
@@ -101,7 +298,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.LoginRequest"
+                            "$ref": "#/definitions/internal_handler_permission_user.LoginRequest"
                         }
                     }
                 ],
@@ -111,13 +308,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/response.Response"
+                                    "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.LoginResponse"
+                                            "$ref": "#/definitions/internal_handler_permission_user.LoginResponse"
                                         }
                                     }
                                 }
@@ -127,77 +324,19 @@ const docTemplate = `{
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
                         }
                     },
                     "401": {
                         "description": "用户名或密码错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/user/register": {
-            "post": {
-                "description": "使用用户名、密码、邮箱注册新用户",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户管理"
-                ],
-                "summary": "用户注册",
-                "parameters": [
-                    {
-                        "description": "注册信息",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/user.RegisterRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "注册成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.User"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误或用户名已存在",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/response.Response"
+                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
                         }
                     }
                 }
@@ -205,19 +344,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "model.User": {
+        "github_com_seeley-chen_vsb-server_internal_model_permission.User": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "account": {
+                    "type": "string"
+                },
+                "createdAt": {
                     "type": "string"
                 },
                 "email": {
                     "type": "string"
                 },
-                "updated_at": {
+                "phone": {
                     "type": "string"
                 },
-                "user_id": {
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
                     "type": "string"
                 },
                 "username": {
@@ -225,17 +370,17 @@ const docTemplate = `{
                 }
             }
         },
-        "response.PageData": {
+        "github_com_seeley-chen_vsb-server_pkg_response.PageData": {
             "type": "object",
             "properties": {
                 "list": {
                     "description": "列表"
                 },
-                "page_index": {
+                "pageIndex": {
                     "description": "页码",
                     "type": "integer"
                 },
-                "page_size": {
+                "pageSize": {
                     "description": "每页条数",
                     "type": "integer"
                 },
@@ -245,7 +390,7 @@ const docTemplate = `{
                 }
             }
         },
-        "response.Response": {
+        "github_com_seeley-chen_vsb-server_pkg_response.Response": {
             "type": "object",
             "properties": {
                 "code": {
@@ -261,10 +406,19 @@ const docTemplate = `{
                 }
             }
         },
-        "user.LoginRequest": {
+        "internal_handler_permission_user.EditRequest": {
             "type": "object",
             "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
                 "password": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 },
                 "username": {
@@ -272,7 +426,18 @@ const docTemplate = `{
                 }
             }
         },
-        "user.LoginResponse": {
+        "internal_handler_permission_user.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handler_permission_user.LoginResponse": {
             "type": "object",
             "properties": {
                 "token": {
@@ -281,13 +446,19 @@ const docTemplate = `{
                 "user": {}
             }
         },
-        "user.RegisterRequest": {
+        "internal_handler_permission_user.RegisterRequest": {
             "type": "object",
             "properties": {
+                "account": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 },
                 "username": {
@@ -295,17 +466,25 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "Bearer JWT token，格式：Bearer {token}",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "VSB Server API",
+	Description:      "VSB 服务端 API 文档",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

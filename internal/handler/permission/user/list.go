@@ -15,12 +15,12 @@ import (
 // @Accept json
 // @Produce json
 // @Param pageIndex query int false "页码，默认1"
-// @Param page_size query int false "每页数量，默认20"
+// @Param pageSize query int false "每页数量，默认20"
 // @Security ApiKeyAuth
 // @Success 200 {object} response.Response{data=response.PageData} "用户列表"
 // @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
-// @Router /api/user/list [get]
+// @Router /api/permission/user/list [get]
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	pageIndexStr := r.URL.Query().Get("pageIndex")
 	pageSizeStr := r.URL.Query().Get("pageSize")

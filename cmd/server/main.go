@@ -1,3 +1,12 @@
+// @title VSB Server API
+// @version 1.0
+// @description VSB 服务端 API 文档
+// @host localhost:8080
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @description Bearer JWT token，格式：Bearer {token}
 package main
 
 import (
@@ -20,9 +29,12 @@ import (
 func main() {
 	// 1. 加载配置
 	cfg := config.Load()
+	if err := cfg.Validate(); err != nil {
+		log.Fatalf("invalid config: %v", err)
+	}
 
 	// 2. 初始化日志
-	logger.Init("debug") // 开发阶段用 debug，生产可改为 info
+	logger.Init(cfg.LogLevel)
 	defer logger.Sync()
 
 	log.Printf("config loaded: port=%s, db=%s", cfg.ServerPort, cfg.MongoDB)
@@ -40,8 +52,12 @@ func main() {
 	// 5. 启动 HTTP 服务（优雅关停）
 	addr := fmt.Sprintf(":%s", cfg.ServerPort)
 	server := &http.Server{
-		Addr:    addr,
-		Handler: middleware.CORS(r),
+		Addr:              addr,
+		Handler:           middleware.CORS(cfg.CORSAllowedOrigins)(r),
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 
 	done := make(chan os.Signal, 1)

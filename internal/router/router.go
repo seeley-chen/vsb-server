@@ -1,6 +1,10 @@
 package router
 
 import (
+	"context"
+	"net/http"
+	"time"
+
 	"github.com/gorilla/mux"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,11 +24,25 @@ import (
 func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router {
 	r := mux.NewRouter()
 
-	// 全局中间件（CORS 在 main 中包裹整个 Router，此处仅注册业务中间件）
+	r.Use(middleware.Recover(logger))
+	r.Use(middleware.MaxBodySize(1 << 20)) // 1MB
 	r.Use(middleware.Logger(logger))
+
+	// 健康检查
+	r.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok"))
+	}).Methods("GET")
 
 	// 初始化用户模块
 	userRepo := repo.NewRepository(db)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := userRepo.EnsureIndexes(ctx); err != nil {
+		logger.Warn("failed to ensure indexes", zap.Error(err))
+	}
+
 	userSvc := svc.NewService(userRepo, cfg.JWTSecret, cfg.GetJWTExpireDuration())
 	userHdl := userHandler.NewHandler(userSvc)
 

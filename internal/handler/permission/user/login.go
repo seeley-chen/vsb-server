@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/seeley-chen/vsb-server/internal/service/permission/user"
@@ -32,7 +33,7 @@ type LoginResponse struct {
 // @Failure 400 {object} response.Response "参数错误"
 // @Failure 401 {object} response.Response "用户名或密码错误"
 // @Failure 500 {object} response.Response "服务器内部错误"
-// @Router /api/user/login [post]
+// @Router /api/permission/user/login [post]
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -47,13 +48,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, userObj, err := h.svc.Login(r.Context(), req.Account, req.Password)
 	if err != nil {
-		switch err {
-		case user.ErrUserNotFound, user.ErrInvalidPassword:
+		if errors.Is(err, user.ErrUserNotFound) || errors.Is(err, user.ErrInvalidPassword) {
 			response.Fail(w, http.StatusUnauthorized, response.CodeUnauthorized, "invalid account or password")
-		default:
-			zap.L().Error("login failed", zap.Error(err))
-			response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "internal server error")
+			return
 		}
+		zap.L().Error("login failed", zap.Error(err))
+		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "internal server error")
 		return
 	}
 

@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	model "github.com/seeley-chen/vsb-server/internal/model/permission"
@@ -20,15 +21,18 @@ type RegisterRequest struct {
 }
 
 // Create 创建用户
-// @Description 使用用户名、密码、登录类型注册新用户
+// @Summary 创建用户
+// @Description 创建新用户，需要 Bearer Token
 // @Tags 用户管理
 // @Accept json
 // @Produce json
 // @Param request body RegisterRequest true "注册信息"
-// @Success 200 {object} response.Response{data=model.User} "注册成功"
-// @Failure 400 {object} response.Response "参数错误或登录类型不支持"
+// @Security ApiKeyAuth
+// @Success 200 {object} response.Response{data=model.User} "创建成功"
+// @Failure 400 {object} response.Response "参数错误或账号已存在"
+// @Failure 401 {object} response.Response "未授权"
 // @Failure 500 {object} response.Response "服务器内部错误"
-// @Router /api/user/register [post]
+// @Router /api/permission/user/create [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -47,16 +51,21 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		username = req.Account
 	}
 
-	newUser, err := h.svc.Create(r.Context(), model.RegisterRequest(req))
+	newUser, err := h.svc.Create(r.Context(), model.RegisterRequest{
+		Username: username,
+		Password: req.Password,
+		Email:    req.Email,
+		Account:  req.Account,
+		Phone:    req.Phone,
+	})
 
 	if err != nil {
-		switch err {
-		case user.ErrAccountExists:
+		if errors.Is(err, user.ErrAccountExists) {
 			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, err.Error())
-		default:
-			zap.L().Error("register failed", zap.Error(err))
-			response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "internal server error")
+			return
 		}
+		zap.L().Error("register failed", zap.Error(err))
+		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "internal server error")
 		return
 	}
 

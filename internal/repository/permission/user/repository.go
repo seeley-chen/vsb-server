@@ -61,7 +61,7 @@ func (r *Repository) FindAll(ctx context.Context, page, pageSize int) ([]model.U
 	findOptions := options.Find().
 		SetSkip(int64((page - 1) * pageSize)).
 		SetLimit(int64(pageSize)).
-		SetProjection(bson.M{"password_hash": 0})
+		SetProjection(bson.M{"passwordHash": 0})
 
 	cursor, err := r.collection.Find(ctx, bson.M{}, findOptions)
 	if err != nil {
@@ -77,13 +77,13 @@ func (r *Repository) FindAll(ctx context.Context, page, pageSize int) ([]model.U
 	return users, total, nil // 返回用户列表和总数
 }
 
-// EnsureIndexes 创建必要索引（用户名唯一索引）,创建用户名唯一索引
+// EnsureIndexes 创建必要索引（account 唯一索引）
 func (r *Repository) EnsureIndexes(ctx context.Context) error {
 	_, err := r.collection.Indexes().CreateOne(ctx, mongo.IndexModel{
-		Keys:    bson.M{"username": 1},           // 用户名唯一索引
-		Options: options.Index().SetUnique(true), // 唯一索引
+		Keys:    bson.M{"account": 1},
+		Options: options.Index().SetUnique(true),
 	})
-	return err // 如果创建索引失败，则返回错误
+	return err
 }
 
 // DeleteById 根据用户ID删除用户
@@ -111,7 +111,7 @@ func (r *Repository) UpdateUserById(ctx context.Context, userId string, update *
 	}
 
 	if update.PasswordHash != "" {
-		setFields["PasswordHash"] = update.PasswordHash
+		setFields["passwordHash"] = update.PasswordHash
 	}
 
 	result, err := r.collection.UpdateOne(ctx, bson.M{"userId": userId}, bson.M{"$set": setFields})
