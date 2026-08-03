@@ -1,56 +1,98 @@
-# Vsb Server
+# VSB Server
 
-基于 Go 的轻量 RESTful API 服务，模块化分层架构，方便长期维护。
-
-## 目录结构
-vsb-server/
-├── cmd/server/main.go          # 程序入口
-├── config/config.go            # 配置加载
-├── internal/
-│   ├── database/mongo.go      # MongoDB 连接
-│   ├── handler/user/           # HTTP 处理器（接口层）
-│   ├── service/user/           # 业务逻辑层
-│   ├── repository/user/        # 数据访问层
-│   ├── model/user.go          # 数据模型
-│   ├── middleware/             # 中间件（CORS / JWT / 日志）
-│   └── router/router.go      # 路由总装
-├── pkg/
-│   ├── jwt/jwt.go            # JWT 签发/验证
-│   ├── response/response.go  # 统一响应封装
-│   └── logger/logger.go      # Zap 日志封装
-├── readme/                    # 各模块说明文档
-├── .env / .env.example        # 环境变量
-├── .gitignore
-└── go.mod
-
-## 快速开始
-1. 克隆项目 git clone git@github.com:seeley-chen/vsb-server.git
-2. 复制环境变量 cp .env.example .env
-3. 安装依赖 go mod tidy
-4. 运行 go run cmd/server/main.go
-
-服务启动后默认监听 `:8080`。
-
-## 鉴权方式
-
-登录后获取 JWT Token，后续请求在 Header 中携带：
-Authorization: Bearer <your-token>
+VSB 服务端，基于 Go + MongoDB 的 REST API 服务，当前已实现权限模块下的用户管理（登录、创建、列表、编辑、删除）。
 
 ## 技术栈
 
-| 组件 | 选型 | 说明 |
-|------|------|------|
-| 路由 | gorilla/mux | 轻量、成熟 |
-| MongoDB | mongo-go-driver | 官方驱动 |
-| JWT | golang-jwt/jwt/v5 | HS256 签名 |
-| 日志 | uber/zap | 高性能结构化日志 |
-| 配置 | joho/godotenv | .env 加载 |
-| 密码加密 | golang.org/x/crypto/bcrypt | 加盐哈希 |
-| ID 生成 | google/uuid | UUID v4 |
+| 类别 | 选型 |
+|------|------|
+| 语言 | Go 1.26 |
+| HTTP 路由 | gorilla/mux |
+| 数据库 | MongoDB |
+| 认证 | JWT (HS256) |
+| 日志 | zap |
+| API 文档 | swaggo/swag + http-swagger |
 
-## 开发约定
+## 项目结构
 
-1. **分层清晰**：handler → service → repository，禁止跨层调用
-2. **统一响应**：所有接口返回 `{ code, message, data }` 格式
-3. **配置外置**：敏感信息一律走环境变量，不硬编码
-4. **模块独立**：新增业务域复制 user 模块结构即可
+```
+vsb-server/
+├── cmd/server/          # 程序入口
+├── config/              # 配置加载与校验
+├── docs/                # Swagger 生成文件（docs.go / swagger.json / swagger.yaml）
+├── internal/
+│   ├── database/      # MongoDB 连接
+│   ├── handler/       # HTTP 处理器（按业务模块划分）
+│   ├── middleware/    # 中间件（鉴权、CORS、日志、限流等）
+│   ├── model/         # 数据模型
+│   ├── repository/    # 数据访问层
+│   ├── router/        # 路由注册
+│   └── service/       # 业务逻辑层
+└── pkg/
+    ├── jwt/           # JWT 工具
+    ├── logger/        # 日志初始化
+    └── response/      # 统一响应格式
+```
+
+## 分层架构
+
+```
+HTTP Request
+    ↓
+Middleware（Recover → BodyLimit → Logger → CORS → Auth）
+    ↓
+Handler（参数解析、校验、调用 Service）
+    ↓
+Service（业务逻辑、JWT 签发）
+    ↓
+Repository（MongoDB CRUD）
+```
+
+## 快速启动
+
+### 1. 配置环境变量
+
+复制 `.env.example` 为 `.env`，填写必填项（详见 [config.md](./config.md)）：
+
+```bash
+cp .env.example .env
+```
+
+### 2. 安装依赖并运行
+
+```bash
+go mod download
+go run cmd/server/main.go
+```
+
+服务默认监听 `http://localhost:8080`。
+
+### 3. 健康检查
+
+```bash
+curl http://localhost:8080/health
+# ok
+```
+
+## 文档索引
+
+| 文档 | 说明 |
+|------|------|
+| [config.md](./config.md) | 环境变量与配置项说明 |
+| [swagger.md](./swagger.md) | API 文档与 Swagger 使用方式 |
+| [architecture.md](./architecture.md) | 目录约定、中间件与认证机制 |
+
+## 当前 API 概览
+
+| 方法 | 路径 | 鉴权 | 说明 |
+|------|------|------|------|
+| GET | `/health` | 否 | 健康检查 |
+| POST | `/api/permission/user/login` | 否 | 用户登录 |
+| POST | `/api/permission/user/create` | 是 | 创建用户 |
+| GET | `/api/permission/user/list` | 是 | 用户列表（分页） |
+| PUT | `/api/permission/user/edit/{userId}` | 是 | 编辑用户 |
+| DELETE | `/api/permission/user/delete/{userId}` | 是 | 删除用户 |
+
+## VS Code 调试
+
+已配置 `.vscode/launch.json`，可直接使用 **Launch Server** 启动调试。
