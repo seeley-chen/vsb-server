@@ -51,7 +51,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		switch err {
-		case user.ErrUsernameExists:
+		case user.ErrAccountExists:
 			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, err.Error())
 		default:
 			zap.L().Error("register failed", zap.Error(err))

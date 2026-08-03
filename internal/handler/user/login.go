@@ -11,7 +11,7 @@ import (
 
 // LoginRequest 登录请求体
 type LoginRequest struct {
-	Username string `json:"username"`
+	Account  string `json:"account"`
 	Password string `json:"password"`
 }
 
@@ -40,16 +40,16 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Username == "" || req.Password == "" {
-		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "username and password are required")
+	if req.Account == "" || req.Password == "" {
+		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "account and password are required")
 		return
 	}
 
-	token, userObj, err := h.svc.Login(r.Context(), req.Username, req.Password)
+	token, userObj, err := h.svc.Login(r.Context(), req.Account, req.Password)
 	if err != nil {
 		switch err {
 		case user.ErrUserNotFound, user.ErrInvalidPassword:
-			response.Fail(w, http.StatusUnauthorized, response.CodeUnauthorized, "invalid username or password")
+			response.Fail(w, http.StatusUnauthorized, response.CodeUnauthorized, "invalid account or password")
 		default:
 			zap.L().Error("login failed", zap.Error(err))
 			response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "internal server error")

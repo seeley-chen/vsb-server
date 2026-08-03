@@ -29,10 +29,10 @@ func (r *Repository) Create(ctx context.Context, user *model.User) error {
 	return err // 如果插入失败，则返回错误
 }
 
-// FindByUsername 根据用户名查找用户
-func (r *Repository) FindByUsername(ctx context.Context, username string) (*model.User, error) {
+// FindByAccount 根据用户名查找用户
+func (r *Repository) FindByAccount(ctx context.Context, account string) (*model.User, error) {
 	var user model.User
-	err := r.collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	err := r.collection.FindOne(ctx, bson.M{"account": account}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}

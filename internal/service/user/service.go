@@ -15,7 +15,7 @@ import (
 // 自定义业务错误
 var (
 	/** 用户名已存在 */
-	ErrUsernameExists = errors.New("username already exists")
+	ErrAccountExists = errors.New("account already exists")
 	/** 用户未找到 */
 	ErrUserNotFound = errors.New("user not found")
 	/** 密码不正确 */
@@ -41,12 +41,12 @@ func NewService(r *repo.Repository, jwtSecret string, jwtExpire time.Duration) *
 // Register 用户注册
 func (s *Service) Create(ctx context.Context, req model.RegisterRequest) (*model.User, error) {
 	// 检查用户名是否已存在
-	existingUser, err := s.repo.FindByUsername(ctx, req.Username)
+	existingUser, err := s.repo.FindByAccount(ctx, req.Account)
 	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, err // 系统错误
 	}
 	if existingUser != nil {
-		return nil, ErrUsernameExists
+		return nil, ErrAccountExists
 	}
 
 	// 创建新用户
@@ -64,9 +64,9 @@ func (s *Service) Create(ctx context.Context, req model.RegisterRequest) (*model
 }
 
 // Login 用户登录，返回 JWT token 和用户信息
-func (s *Service) Login(ctx context.Context, username, password string) (string, *model.User, error) {
+func (s *Service) Login(ctx context.Context, account, password string) (string, *model.User, error) {
 	// 查找用户
-	user, err := s.repo.FindByUsername(ctx, username)
+	user, err := s.repo.FindByAccount(ctx, account)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return "", nil, ErrUserNotFound
