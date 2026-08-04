@@ -14,10 +14,14 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/seeley-chen/vsb-server/config"
+	departmentHandler "github.com/seeley-chen/vsb-server/internal/handler/permission/department"
 	userHandler "github.com/seeley-chen/vsb-server/internal/handler/permission/user"
 	"github.com/seeley-chen/vsb-server/internal/middleware"
-	repo "github.com/seeley-chen/vsb-server/internal/repository/permission/user"
-	svc "github.com/seeley-chen/vsb-server/internal/service/permission/user"
+	departmentRepo "github.com/seeley-chen/vsb-server/internal/repository/permission/department"
+	userRepo "github.com/seeley-chen/vsb-server/internal/repository/permission/user"
+	userSvc "github.com/seeley-chen/vsb-server/internal/service/permission/user"
+
+	deptSvc "github.com/seeley-chen/vsb-server/internal/service/permission/department"
 )
 
 // New 创建并配置路由器
@@ -35,7 +39,7 @@ func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router
 	}).Methods("GET")
 
 	// 初始化用户模块
-	userRepo := repo.NewRepository(db)
+	userRepo := userRepo.NewRepository(db)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -43,8 +47,20 @@ func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router
 		logger.Warn("failed to ensure indexes", zap.Error(err))
 	}
 
-	userSvc := svc.NewService(userRepo, cfg.JWTSecret, cfg.GetJWTExpireDuration())
+	userSvc := userSvc.NewService(userRepo, cfg.JWTSecret, cfg.GetJWTExpireDuration())
 	userHdl := userHandler.NewHandler(userSvc)
+
+	departmentRepo := departmentRepo.NewRepository(db)
+
+	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := departmentRepo.EnsureIndexes(ctx); err != nil {
+		logger.Warn("failed to ensure indexes", zap.Error(err))
+	}
+
+	departmentSvc := deptSvc.NewService(departmentRepo, cfg.JWTSecret, cfg.GetJWTExpireDuration())
+	departmentHdl := departmentHandler.NewHandler(departmentSvc)
+	departmentHdl.RegisterPublicRoutes(r)
 
 	// 注册公开路由（无需鉴权）
 	userHdl.RegisterPublicRoutes(r)

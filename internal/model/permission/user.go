@@ -11,11 +11,12 @@ import (
 
 // RegisterRequest 用户注册请求
 type RegisterRequest struct {
-	Username string
-	Password string
-	Email    string
-	Account  string
-	Phone    string
+	Username     string
+	Password     string
+	Email        string
+	Account      string
+	Phone        string
+	DepartmentId string
 }
 
 // User 用户模型，对应 MongoDB users 集合
@@ -26,6 +27,7 @@ type User struct {
 	Email        string    `bson:"email" json:"email"`
 	CreatedAt    time.Time `bson:"createdAt" json:"createdAt"`
 	UpdatedAt    time.Time `bson:"updatedAt" json:"updatedAt"`
+	DepartmentId string    `bson:"departmentId" json:"departmentId"`
 	Account      string    `bson:"account" json:"account"`
 	Phone        string    `bson:"phone" json:"phone"`
 }
