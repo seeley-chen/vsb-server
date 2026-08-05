@@ -12,11 +12,11 @@ type DepartmentRequest struct {
 }
 
 type Department struct {
-	DepartmentId string    `bson:"departmentId"`
-	Name         string    `bson:"name"`
-	Description  string    `bson:"description"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
+	DepartmentId string    `bson:"departmentId" json:"departmentId"`
+	Name         string    `bson:"name" json:"name"`
+	Description  string    `bson:"description" json:"description"`
+	CreatedAt    time.Time `bson:"createdAt" json:"createdAt"`
+	UpdatedAt    time.Time `bson:"updatedAt" json:"updatedAt"`
 }
 
 // 创建新部门

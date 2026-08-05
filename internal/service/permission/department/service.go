@@ -61,10 +61,10 @@ func (s *Service) ListDepartments(ctx context.Context, page, pageSize int) ([]*m
 		pageSize = 20 // 默认每页20条
 	}
 
-	users, total, err := s.repo.FindAll(ctx, page, pageSize)
+	departments, total, err := s.repo.FindAll(ctx, page, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	return users, total, nil
+	return departments, total, nil
 }

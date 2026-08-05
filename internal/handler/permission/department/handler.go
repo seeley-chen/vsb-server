@@ -16,10 +16,10 @@ func NewHandler(service *svc.Service) *Handler {
 func (h *Handler) RegisterPublicRoutes(r *mux.Router) {
 	sub := r.PathPrefix("/api/permission/department").Subrouter()
 	sub.HandleFunc("/create", h.Create).Methods("POST")
-
 }
 
-func (h *Handler) RegisterPrivateRoutes(r *mux.Router) {
-	sub := r.PathPrefix("/api/permission/department").Subrouter()
+// RegisterProtectedRoutes 注册需要鉴权的路由（父路由已挂载 /api 前缀）
+func (h *Handler) RegisterProtectedRoutes(r *mux.Router) {
+	sub := r.PathPrefix("/permission/department").Subrouter()
 	sub.HandleFunc("/list", h.List).Methods("GET")
 }
