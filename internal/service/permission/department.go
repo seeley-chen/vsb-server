@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	models "github.com/seeley-chen/vsb-server/internal/models/permission"
+	model "github.com/seeley-chen/vsb-server/internal/models/permission"
 	repo "github.com/seeley-chen/vsb-server/internal/repository/permission"
 )
 
@@ -26,7 +26,7 @@ func NewDepartmentService(repo *repo.DepartmentRepo) *DepartmentService {
 }
 
 // CreateDepartment 创建部门
-func (s *DepartmentService) CreateDepartment(ctx context.Context, data *models.DepartmentRequest) (*models.Department, error) {
+func (s *DepartmentService) CreateDepartment(ctx context.Context, data *model.DepartmentRequest) (*model.DepartmentResponse, error) {
 	if data.Name == "" {
 		return nil, ErrDepartmentNameFailed
 	}
@@ -34,7 +34,7 @@ func (s *DepartmentService) CreateDepartment(ctx context.Context, data *models.D
 }
 
 // GetDepartmentById 通过ID获取部门
-func (s *DepartmentService) GetDepartmentById(ctx context.Context, departmentId string) (*models.Department, error) {
+func (s *DepartmentService) GetDepartmentById(ctx context.Context, departmentId string) (*model.DepartmentResponse, error) {
 	if departmentId == "" {
 		return nil, ErrDepartmentNotFound
 	}
@@ -51,12 +51,12 @@ func (s *DepartmentService) GetDepartmentById(ctx context.Context, departmentId 
 }
 
 // GetDepartmentList 分页获取部门列表
-func (s *DepartmentService) GetDepartmentList(ctx context.Context, pageIndex, pageSize int) ([]*models.Department, int64, error) {
+func (s *DepartmentService) GetDepartmentList(ctx context.Context, pageIndex, pageSize int) ([]*model.DepartmentResponse, int64, error) {
 	return s.repo.GetDepartmentList(ctx, pageIndex, pageSize)
 }
 
 // UpdateDepartment 更新部门
-func (s *DepartmentService) UpdateDepartment(ctx context.Context, departmentId string, data *models.DepartmentUpdateRequest) (*models.Department, error) {
+func (s *DepartmentService) UpdateDepartment(ctx context.Context, departmentId string, data *model.DepartmentUpdateRequest) (*model.DepartmentResponse, error) {
 	if _, err := s.GetDepartmentById(ctx, departmentId); err != nil {
 		return nil, err
 	}

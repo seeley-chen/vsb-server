@@ -24,10 +24,10 @@ func NewDepartmentRepo(db *mongo.Database) *DepartmentRepo {
 }
 
 // 创建部门
-func (r *DepartmentRepo) CreateDepartment(ctx context.Context, data *model.DepartmentRequest) (*model.Department, error) {
+func (r *DepartmentRepo) CreateDepartment(ctx context.Context, data *model.DepartmentRequest) (*model.DepartmentResponse, error) {
 	now := time.Now()
 
-	department := &model.Department{
+	department := &model.DepartmentResponse{
 		Name:         data.Name,
 		Description:  data.Description,
 		CreatedAt:    now,
@@ -45,7 +45,7 @@ func (r *DepartmentRepo) CreateDepartment(ctx context.Context, data *model.Depar
 }
 
 // GetDepartmentList 分页获取部门列表
-func (r *DepartmentRepo) GetDepartmentList(ctx context.Context, pageIndex, pageSize int) ([]*model.Department, int64, error) {
+func (r *DepartmentRepo) GetDepartmentList(ctx context.Context, pageIndex, pageSize int) ([]*model.DepartmentResponse, int64, error) {
 	total, err := r.collection.CountDocuments(ctx, bson.M{})
 	if err != nil {
 		return nil, 0, err
@@ -61,7 +61,7 @@ func (r *DepartmentRepo) GetDepartmentList(ctx context.Context, pageIndex, pageS
 	}
 	defer cursor.Close(ctx)
 
-	departments := make([]*model.Department, 0)
+	departments := make([]*model.DepartmentResponse, 0)
 	if err := cursor.All(ctx, &departments); err != nil {
 		return nil, 0, err
 	}
@@ -70,8 +70,8 @@ func (r *DepartmentRepo) GetDepartmentList(ctx context.Context, pageIndex, pageS
 }
 
 // 根据部门ID查询
-func (r *DepartmentRepo) GetDepartmentById(ctx context.Context, departmentId string) (*model.Department, error) {
-	var department model.Department
+func (r *DepartmentRepo) GetDepartmentById(ctx context.Context, departmentId string) (*model.DepartmentResponse, error) {
+	var department model.DepartmentResponse
 
 	err := r.collection.FindOne(ctx, bson.M{"department_id": departmentId}).Decode(&department)
 
@@ -87,7 +87,7 @@ func (r *DepartmentRepo) GetDepartmentById(ctx context.Context, departmentId str
 }
 
 // 更新部门
-func (r *DepartmentRepo) UpdateDepartment(ctx context.Context, data *model.DepartmentUpdateRequest) (*model.Department, error) {
+func (r *DepartmentRepo) UpdateDepartment(ctx context.Context, data *model.DepartmentUpdateRequest) (*model.DepartmentResponse, error) {
 	update := bson.M{}
 
 	if data.Name != "" {
