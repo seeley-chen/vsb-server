@@ -6,6 +6,7 @@ import (
 	"github.com/seeley-chen/vsb-server/internal/deps"
 	permissionHandler "github.com/seeley-chen/vsb-server/internal/handler/permission"
 	"github.com/seeley-chen/vsb-server/internal/handler/permission/department"
+	"github.com/seeley-chen/vsb-server/internal/handler/permission/role"
 	permissionRepo "github.com/seeley-chen/vsb-server/internal/repository/permission"
 	permissionSvc "github.com/seeley-chen/vsb-server/internal/service/permission"
 )
@@ -15,6 +16,11 @@ func Register(d *deps.Deps, _ *mux.Router, protected *mux.Router) {
 	departmentRepo := permissionRepo.NewDepartmentRepo(d.DB)
 	departmentSvc := permissionSvc.NewDepartmentService(departmentRepo)
 
-	hdl := permissionHandler.NewHandler(department.NewHandler(departmentSvc))
+	roleRepo := permissionRepo.NewRoleRepo(d.DB)
+
+	hdl := permissionHandler.NewHandler(
+		department.NewHandler(departmentSvc),
+		role.NewHandler(roleRepo),
+	)
 	hdl.RegisterRoutes(protected)
 }

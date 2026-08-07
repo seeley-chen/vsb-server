@@ -15,7 +15,7 @@ func GenerateUuid() string {
 }
 
 /** 统一生成字符串类型数字ID */
-func GenerateStringId() string {
+func GenerateUniqueID() string {
 	n, err := rand.Int(rand.Reader, big.NewInt(10000))
 	if err != nil {
 		return fmt.Sprintf("%d", time.Now().UnixMilli())
