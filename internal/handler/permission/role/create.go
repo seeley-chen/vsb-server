@@ -1,7 +1,6 @@
 package role
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -13,26 +12,24 @@ import (
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var req model.RoleRequest
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "请求体解析失败")
+	if !response.BindJSON(w, r, &req) {
 		return
 	}
 
 	role, err := h.svc.CreateRole(r.Context(), &req)
 	if err != nil {
 		if errors.Is(err, svc.ErrRoleNameEmpty) {
-			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "角色名不能为空")
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "role name is required")
 			return
 		}
 
 		if errors.Is(err, svc.ErrRoleExist) {
-			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "角色名已存在")
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "role already exists")
 			return
 		}
 
 		zap.L().Error("create role failed", zap.Error(err))
-		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "创建角色失败")
+		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "create role failed")
 		return
 	}
 

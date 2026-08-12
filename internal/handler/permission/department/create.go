@@ -1,7 +1,6 @@
 package department
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -13,15 +12,14 @@ import (
 
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var req model.DepartmentRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "invalid request")
+	if !response.BindJSON(w, r, &req) {
 		return
 	}
 
 	department, err := h.svc.CreateDepartment(r.Context(), &req)
 	if err != nil {
 		if errors.Is(err, svc.ErrDepartmentNameFailed) {
-			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, err.Error())
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "department name is required")
 			return
 		}
 		if errors.Is(err, svc.ErrDepartmentExists) {

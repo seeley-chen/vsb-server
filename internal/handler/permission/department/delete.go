@@ -4,16 +4,14 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	svc "github.com/seeley-chen/vsb-server/internal/service/permission"
 	"github.com/seeley-chen/vsb-server/pkg/response"
 	"go.uber.org/zap"
 )
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	departmentID := mux.Vars(r)["id"]
-	if departmentID == "" {
-		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "department id is required")
+	departmentID, ok := response.PathVar(w, r, "id", "department id is required")
+	if !ok {
 		return
 	}
 

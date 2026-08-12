@@ -1,11 +1,9 @@
 package department
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	model "github.com/seeley-chen/vsb-server/internal/models/permission"
 	svc "github.com/seeley-chen/vsb-server/internal/service/permission"
 	"github.com/seeley-chen/vsb-server/pkg/response"
@@ -13,15 +11,13 @@ import (
 )
 
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	departmentID := mux.Vars(r)["id"]
-	if departmentID == "" {
-		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "department id is required")
+	var req model.DepartmentUpdateRequest
+	if !response.BindJSON(w, r, &req) {
 		return
 	}
 
-	var req model.DepartmentUpdateRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "invalid request")
+	departmentID, ok := response.PathVar(w, r, "id", "department id is required")
+	if !ok {
 		return
 	}
 

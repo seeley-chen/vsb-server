@@ -9,8 +9,11 @@ import (
 )
 
 var (
-	ErrRoleNotFound  = errors.New("role not found")
-	ErrRoleExist     = errors.New("role already exist")
+	/** 未找到角色 */
+	ErrRoleNotFound = errors.New("role not found")
+	/** 角色已存在 */
+	ErrRoleExist = errors.New("role already exist")
+	/** 角色名不能为空 */
 	ErrRoleNameEmpty = errors.New("role name is empty")
 )
 
