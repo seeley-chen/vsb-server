@@ -8,10 +8,12 @@ import (
 
 const maxPermissionDepth = 5
 
+// 规范化名称
 func normalizeName(name string) string {
 	return strings.TrimSpace(name)
 }
 
+// 规范化描述
 func normalizeDescription(desc string) string {
 	return strings.TrimSpace(desc)
 }
@@ -21,6 +23,7 @@ func validatePermissions(items []model.PermissionItem) error {
 	return validatePermissionsDepth(items, 0)
 }
 
+// 校验权限树深度
 func validatePermissionsDepth(items []model.PermissionItem, depth int) error {
 	if depth > maxPermissionDepth {
 		return ErrInvalidPermission

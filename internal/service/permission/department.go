@@ -23,6 +23,7 @@ func NewDepartmentService(repo *repo.DepartmentRepo) *DepartmentService {
 	return &DepartmentService{repo: repo}
 }
 
+/** 创建部门 */
 func (s *DepartmentService) CreateDepartment(ctx context.Context, data *model.DepartmentRequest) (*model.DepartmentResponse, error) {
 	data.Name = normalizeName(data.Name)
 	data.Description = normalizeDescription(data.Description)
@@ -48,6 +49,7 @@ func (s *DepartmentService) CreateDepartment(ctx context.Context, data *model.De
 	return department, nil
 }
 
+/** 根据部门ID获取部门 */
 func (s *DepartmentService) GetDepartmentById(ctx context.Context, departmentId string) (*model.DepartmentResponse, error) {
 	if departmentId == "" {
 		return nil, ErrDepartmentNotFound
@@ -63,10 +65,12 @@ func (s *DepartmentService) GetDepartmentById(ctx context.Context, departmentId 
 	return department, nil
 }
 
+/** 获取部门列表 */
 func (s *DepartmentService) GetDepartmentList(ctx context.Context, pageIndex, pageSize int) ([]*model.DepartmentResponse, int64, error) {
 	return s.repo.GetDepartmentList(ctx, pageIndex, pageSize)
 }
 
+/** 更新部门 */
 func (s *DepartmentService) UpdateDepartment(ctx context.Context, departmentId string, data *model.DepartmentUpdateRequest) (*model.DepartmentResponse, error) {
 	if departmentId == "" {
 		return nil, ErrDepartmentNotFound
@@ -104,6 +108,7 @@ func (s *DepartmentService) UpdateDepartment(ctx context.Context, departmentId s
 	return department, nil
 }
 
+/** 删除部门 */
 func (s *DepartmentService) DeleteDepartment(ctx context.Context, departmentId string) error {
 	if departmentId == "" {
 		return ErrDepartmentNotFound
