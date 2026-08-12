@@ -3,6 +3,7 @@ package permission
 import (
 	"context"
 	"errors"
+	"time"
 
 	model "github.com/seeley-chen/vsb-server/internal/models/permission"
 	repo "github.com/seeley-chen/vsb-server/internal/repository/permission"
@@ -20,11 +21,17 @@ var (
 )
 
 type UserService struct {
-	userRepo *repo.UserRepo
+	userRepo  *repo.UserRepo
+	jwtSecret string
+	jwtExpire time.Duration
 }
 
-func NewUserService(userRepo *repo.UserRepo) *UserService {
-	return &UserService{userRepo: userRepo}
+func NewUserService(userRepo *repo.UserRepo, jwtSecret string, jwtExpire time.Duration) *UserService {
+	return &UserService{
+		userRepo:  userRepo,
+		jwtSecret: jwtSecret,
+		jwtExpire: jwtExpire,
+	}
 }
 
 // 创建用户

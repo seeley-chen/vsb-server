@@ -22,7 +22,7 @@ func Register(d *deps.Deps, _ *mux.Router, protected *mux.Router) {
 
 	departmentSvc := permissionSvc.NewDepartmentService(departmentRepo)
 	roleSvc := permissionSvc.NewRoleService(roleRepo)
-	userSvc := permissionSvc.NewUserService(userRepo)
+	userSvc := permissionSvc.NewUserService(userRepo, d.JWTSecret, d.JWTExpire)
 
 	hdl := permissionHandler.NewHandler(
 		department.NewHandler(departmentSvc),

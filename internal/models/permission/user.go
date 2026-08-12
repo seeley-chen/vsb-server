@@ -37,3 +37,13 @@ type UserUpdateRequest struct {
 	RoleId       string `bson:"role_id" json:"roleId" validate:"required"`
 	DepartmentId string `bson:"department_id" json:"departmentId" validate:"required"`
 }
+
+type UserLoginRequest struct {
+	Account  string `json:"account" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+type UserLoginResponse struct {
+	Token string        `json:"token"`
+	User  *UserResponse `json:"user"`
+}

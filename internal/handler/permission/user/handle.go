@@ -19,4 +19,5 @@ func (h *Handler) RegisterRoutes(r *mux.Router) {
 	sub.HandleFunc("/list", h.List).Methods("GET")
 	sub.HandleFunc("/update/{id}", h.Update).Methods("PUT")
 	sub.HandleFunc("/delete/{id}", h.Delete).Methods("DELETE")
+	sub.HandleFunc("/login", h.Login).Methods("POST")
 }
