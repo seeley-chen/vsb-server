@@ -2,7 +2,6 @@ package role
 
 import (
 	"github.com/gorilla/mux"
-	repo "github.com/seeley-chen/vsb-server/internal/repository/permission"
 	svc "github.com/seeley-chen/vsb-server/internal/service/permission"
 )
 
@@ -10,10 +9,8 @@ type Handler struct {
 	svc *svc.RoleService
 }
 
-func NewHandler(repo *repo.RoleRepo) *Handler {
-	return &Handler{
-		svc: svc.NewRoleService(repo),
-	}
+func NewHandler(svc *svc.RoleService) *Handler {
+	return &Handler{svc: svc}
 }
 
 func (h *Handler) RegisterRoutes(r *mux.Router) {

@@ -27,6 +27,14 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 			response.Fail(w, http.StatusNotFound, response.CodeNotFound, "department not found")
 			return
 		}
+		if errors.Is(err, svc.ErrDepartmentNameEmpty) {
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "department name is required")
+			return
+		}
+		if errors.Is(err, svc.ErrDepartmentExists) {
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "department already exists")
+			return
+		}
 		zap.L().Error("update department failed", zap.Error(err))
 		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)
 		return

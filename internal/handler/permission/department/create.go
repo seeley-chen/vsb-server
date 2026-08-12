@@ -18,7 +18,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	department, err := h.svc.CreateDepartment(r.Context(), &req)
 	if err != nil {
-		if errors.Is(err, svc.ErrDepartmentNameFailed) {
+		if errors.Is(err, svc.ErrDepartmentNameEmpty) {
 			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "department name is required")
 			return
 		}

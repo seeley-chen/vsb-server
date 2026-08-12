@@ -22,14 +22,16 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "role name is required")
 			return
 		}
-
-		if errors.Is(err, svc.ErrRoleExist) {
+		if errors.Is(err, svc.ErrRoleExists) {
 			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "role already exists")
 			return
 		}
-
+		if errors.Is(err, svc.ErrInvalidPermission) {
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "invalid permission")
+			return
+		}
 		zap.L().Error("create role failed", zap.Error(err))
-		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "create role failed")
+		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)
 		return
 	}
 

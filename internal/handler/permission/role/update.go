@@ -27,8 +27,20 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 			response.Fail(w, http.StatusNotFound, response.CodeNotFound, "role not found")
 			return
 		}
+		if errors.Is(err, svc.ErrRoleNameEmpty) {
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "role name is required")
+			return
+		}
+		if errors.Is(err, svc.ErrRoleExists) {
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "role already exists")
+			return
+		}
+		if errors.Is(err, svc.ErrInvalidPermission) {
+			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "invalid permission")
+			return
+		}
 		zap.L().Error("update role failed", zap.Error(err))
-		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError, "update role failed")
+		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)
 		return
 	}
 

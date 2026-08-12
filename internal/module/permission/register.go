@@ -14,13 +14,17 @@ import (
 // Register 组装 permission 大模块依赖并注册路由。
 func Register(d *deps.Deps, _ *mux.Router, protected *mux.Router) {
 	departmentRepo := permissionRepo.NewDepartmentRepo(d.DB)
-	departmentSvc := permissionSvc.NewDepartmentService(departmentRepo)
-
 	roleRepo := permissionRepo.NewRoleRepo(d.DB)
+
+	d.EnsureIndexes(departmentRepo.EnsureIndexes)
+	d.EnsureIndexes(roleRepo.EnsureIndexes)
+
+	departmentSvc := permissionSvc.NewDepartmentService(departmentRepo)
+	roleSvc := permissionSvc.NewRoleService(roleRepo)
 
 	hdl := permissionHandler.NewHandler(
 		department.NewHandler(departmentSvc),
-		role.NewHandler(roleRepo),
+		role.NewHandler(roleSvc),
 	)
 	hdl.RegisterRoutes(protected)
 }
