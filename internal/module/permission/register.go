@@ -26,7 +26,7 @@ func Register(d *deps.Deps, _ *mux.Router, protected *mux.Router) {
 
 	hdl := permissionHandler.NewHandler(
 		department.NewHandler(departmentSvc),
-		role.NewHandler(roleSvc),
+		role.NewHandler(roleSvc, userSvc),
 		user.NewHandler(userSvc),
 	)
 	hdl.RegisterRoutes(protected)

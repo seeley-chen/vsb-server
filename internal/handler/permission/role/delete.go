@@ -15,7 +15,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.svc.DeleteRole(r.Context(), roleId); err != nil {
+	if err := h.roleSvc.DeleteRole(r.Context(), roleId); err != nil {
 		if errors.Is(err, svc.ErrRoleNotFound) {
 			response.Fail(w, http.StatusNotFound, response.CodeNotFound, "role not found")
 			return

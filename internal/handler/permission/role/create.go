@@ -16,7 +16,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, err := h.svc.CreateRole(r.Context(), &req)
+	role, err := h.roleSvc.CreateRole(r.Context(), &req)
 	if err != nil {
 		if errors.Is(err, svc.ErrRoleNameEmpty) {
 			response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "role name is required")

@@ -6,11 +6,15 @@ import (
 )
 
 type Handler struct {
-	svc *svc.RoleService
+	roleSvc *svc.RoleService
+	userSvc *svc.UserService
 }
 
-func NewHandler(svc *svc.RoleService) *Handler {
-	return &Handler{svc: svc}
+func NewHandler(roleSvc *svc.RoleService, userSvc *svc.UserService) *Handler {
+	return &Handler{
+		roleSvc: roleSvc,
+		userSvc: userSvc,
+	}
 }
 
 func (h *Handler) RegisterRoutes(r *mux.Router) {

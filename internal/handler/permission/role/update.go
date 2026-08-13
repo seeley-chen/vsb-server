@@ -21,7 +21,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role, err := h.svc.UpdateRole(r.Context(), roleId, &req)
+	role, err := h.roleSvc.UpdateRole(r.Context(), roleId, &req)
 	if err != nil {
 		if errors.Is(err, svc.ErrRoleNotFound) {
 			response.Fail(w, http.StatusNotFound, response.CodeNotFound, "role not found")

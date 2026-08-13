@@ -29,4 +29,5 @@ func (h *Handler) RegisterRoutes(r *mux.Router) {
 	h.Department.RegisterRoutes(sub)
 	h.Role.RegisterRoutes(sub)
 	h.User.RegisterRoutes(sub)
+	sub.HandleFunc("/privileges", h.Role.GetPrivileges).Methods("GET")
 }
