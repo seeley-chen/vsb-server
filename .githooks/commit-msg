@@ -1,0 +1,99 @@
+#!/bin/sh
+# Commit-msg hook: 校验提交信息是否符合 Conventional Commits 规范
+# 仅依赖 shell，无需安装任何额外工具
+
+set -e
+
+COMMIT_MSG_FILE="$1"
+FIRST_LINE=$(head -1 "$COMMIT_MSG_FILE")
+
+# 跳过 merge / revert 等自动生成的提交
+if echo "$FIRST_LINE" | grep -qE '^(Merge |Revert |Auto-merge )'; then
+    exit 0
+fi
+
+# 允许的 type 列表
+TYPES="feat fix docs style refactor perf test chore build ci revert"
+
+print_types() {
+    echo "允许的 type: feat, fix, docs, style, refactor, perf, test, chore, build, ci, revert"
+}
+
+print_example() {
+    echo ""
+    echo "正确格式示例:"
+    echo "  feat: 新增用户导出功能"
+    echo "  fix: 修复登录页面空指针异常"
+    echo "  docs: 更新 API 文档"
+    echo "  refactor: 重构权限服务层"
+    echo ""
+    echo "也可带 scope:"
+    echo "  feat(user): 新增用户导出功能"
+    echo "  fix(role): 修复角色权限合并问题"
+}
+
+# 1. header-max-length: 标题最大长度 100
+LEN=$(echo "$FIRST_LINE" | wc -c | tr -d ' ')
+# wc -c 包含换行符，实际长度需 -1
+LEN=$((LEN - 1))
+if [ "$LEN" -gt 100 ]; then
+    echo "❌ 标题长度超过 100 字符（当前: $LEN 字符）"
+    echo "   $FIRST_LINE"
+    exit 1
+fi
+
+# 2. 提取 type 部分（冒号前，去掉 scope）
+# 格式: type 或 type(scope)
+TYPE_PART=$(echo "$FIRST_LINE" | sed -E 's/^([^(:]+)(\(.+\))?:.*/\1/')
+
+# 如果 sed 没有匹配到（没有冒号），TYPE_PART 会等于原行
+if [ "$TYPE_PART" = "$FIRST_LINE" ]; then
+    echo "❌ 提交信息格式错误，缺少 ': ' 分隔符"
+    echo "   格式应为: type: subject 或 type(scope): subject"
+    print_types
+    print_example
+    exit 1
+fi
+
+# type-empty: 类型不能为空
+if [ -z "$TYPE_PART" ]; then
+    echo "❌ type 不能为空"
+    print_types
+    print_example
+    exit 1
+fi
+
+# type-case: 类型必须小写
+if echo "$TYPE_PART" | grep -qE '[A-Z]'; then
+    echo "❌ type 必须为小写: $TYPE_PART"
+    print_types
+    exit 1
+fi
+
+# type-enum: 类型必须在允许列表中
+VALID=0
+for t in $TYPES; do
+    if [ "$TYPE_PART" = "$t" ]; then
+        VALID=1
+        break
+    fi
+done
+
+if [ "$VALID" -eq 0 ]; then
+    echo "❌ 无效的 type: '$TYPE_PART'"
+    print_types
+    print_example
+    exit 1
+fi
+
+# subject-empty: 主题不能为空
+# 提取冒号后的内容
+SUBJECT=$(echo "$FIRST_LINE" | sed -E 's/^[^:]+:[[:space:]]*//')
+if [ -z "$SUBJECT" ]; then
+    echo "❌ subject 不能为空"
+    echo "   格式应为: type: subject"
+    print_example
+    exit 1
+fi
+
+echo "✅ 提交信息格式正确: $FIRST_LINE"

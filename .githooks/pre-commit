@@ -1,0 +1,54 @@
+#!/bin/sh
+# Pre-commit hook: 仅依赖 Go 自带工具（gofmt / go vet / go build）
+# 确保提交前代码格式正确、无静态分析错误、可正常编译
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# 1. 检查代码格式（gofmt）
+UNFORMATTED=$(gofmt -l . 2>&1)
+if [ -n "$UNFORMATTED" ]; then
+    echo "❌ 代码格式检查未通过，以下文件需要格式化："
+    echo "$UNFORMATTED"
+    echo ""
+    echo "请运行 gofmt -w . 后重新提交"
+    exit 1
+fi
+echo "✅ gofmt 检查通过"
+
+# 2. 静态分析（go vet）
+echo "⏳ 运行 go vet..."
+if ! go vet ./... 2>&1; then
+    echo "❌ go vet 检查未通过"
+    exit 1
+fi
+echo "✅ go vet 检查通过"
+
+# 3. 编译检查（go build）
+echo "⏳ 运行 go build..."
+if ! go build ./... 2>&1; then
+    echo "❌ go build 编译失败"
+    exit 1
+fi
+echo "✅ go build 编译通过"
+
+# 4. 检查 go.mod / go.sum 是否整洁
+echo "⏳ 检查 go.mod 同步状态..."
+TMP_MOD=$(mktemp)
+TMP_SUM=$(mktemp)
+cp go.mod "$TMP_MOD"
+cp go.sum "$TMP_SUM"
+go mod tidy 2>/dev/null
+if ! diff -q go.mod "$TMP_MOD" >/dev/null 2>&1 || ! diff -q go.sum "$TMP_SUM" >/dev/null 2>&1; then
+    cp "$TMP_MOD" go.mod
+    cp "$TMP_SUM" go.sum
+    rm -f "$TMP_MOD" "$TMP_SUM"
+    echo "❌ go.mod / go.sum 不是最新状态，请运行 go mod tidy 后重新提交"
+    exit 1
+fi
+rm -f "$TMP_MOD" "$TMP_SUM"
+echo "✅ go.mod 同步检查通过"
+
+echo ""
+echo "🎉 所有检查通过，允许提交！"
