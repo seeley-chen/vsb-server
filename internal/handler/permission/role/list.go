@@ -10,7 +10,7 @@ import (
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	pageIndex, pageSize := response.PageQuery(r)
 
-	roles, total, err := h.svc.GetRoleList(r.Context(), pageIndex, pageSize)
+	roles, total, err := h.roleSvc.GetRoleList(r.Context(), pageIndex, pageSize)
 	if err != nil {
 		zap.L().Error("list roles failed", zap.Error(err))
 		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)

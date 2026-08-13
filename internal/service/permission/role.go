@@ -67,6 +67,22 @@ func (s *RoleService) GetRoleById(ctx context.Context, roleId string) (*model.Ro
 	return role, nil
 }
 
+// GetRolesByIds 根据角色ID列表批量获取角色
+func (s *RoleService) GetRolesByIds(ctx context.Context, roleIds []string) ([]*model.RoleResponse, error) {
+	return s.repo.GetRolesByIds(ctx, roleIds)
+}
+
+// MergePermissions 合并多个角色的权限（简单拼接，保留所有权限项）
+func (s *RoleService) MergePermissions(roles []*model.RoleResponse) []model.PermissionItem {
+	merged := make([]model.PermissionItem, 0)
+	for _, role := range roles {
+		if role != nil && role.Permissions != nil {
+			merged = append(merged, role.Permissions...)
+		}
+	}
+	return merged
+}
+
 func (s *RoleService) GetRoleList(ctx context.Context, pageIndex, pageSize int) ([]*model.RoleResponse, int64, error) {
 	return s.repo.GetRoleList(ctx, pageIndex, pageSize)
 }

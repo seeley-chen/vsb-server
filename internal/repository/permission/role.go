@@ -96,6 +96,25 @@ func (r *RoleRepo) GetRoleById(ctx context.Context, roleId string) (*model.RoleR
 	return &role, nil
 }
 
+// 根据角色ID列表批量获取角色
+func (r *RoleRepo) GetRolesByIds(ctx context.Context, roleIds []string) ([]*model.RoleResponse, error) {
+	if len(roleIds) == 0 {
+		return []*model.RoleResponse{}, nil
+	}
+
+	cursor, err := r.collection.Find(ctx, bson.M{"role_id": bson.M{"$in": roleIds}})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	roles := make([]*model.RoleResponse, 0)
+	if err := cursor.All(ctx, &roles); err != nil {
+		return nil, err
+	}
+	return roles, nil
+}
+
 func (r *RoleRepo) FindByName(ctx context.Context, name string) (*model.RoleResponse, error) {
 	var role model.RoleResponse
 	err := r.collection.FindOne(ctx, bson.M{"name": name}).Decode(&role)
