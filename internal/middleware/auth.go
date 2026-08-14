@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/seeley-chen/vsb-server/pkg/jwt"
-	"github.com/seeley-chen/vsb-server/pkg/response"
+	"github.com/Vanselyn/vsb-server/pkg/jwt"
+	"github.com/Vanselyn/vsb-server/pkg/response"
 )
 
 type contextKey string

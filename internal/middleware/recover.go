@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/seeley-chen/vsb-server/pkg/response"
+	"github.com/Vanselyn/vsb-server/pkg/response"
 	"go.uber.org/zap"
 )
 

@@ -7,13 +7,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 
-	_ "github.com/seeley-chen/vsb-server/docs"
+	_ "github.com/Vanselyn/vsb-server/docs"
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	"github.com/seeley-chen/vsb-server/config"
-	"github.com/seeley-chen/vsb-server/internal/deps"
-	"github.com/seeley-chen/vsb-server/internal/middleware"
-	"github.com/seeley-chen/vsb-server/internal/module"
+	"github.com/Vanselyn/vsb-server/config"
+	"github.com/Vanselyn/vsb-server/internal/deps"
+	"github.com/Vanselyn/vsb-server/internal/middleware"
+	"github.com/Vanselyn/vsb-server/internal/module"
 )
 
 // New 创建并配置路由器

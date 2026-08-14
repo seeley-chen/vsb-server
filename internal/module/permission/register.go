@@ -3,31 +3,28 @@ package permission
 import (
 	"github.com/gorilla/mux"
 
-	"github.com/seeley-chen/vsb-server/internal/deps"
-	permissionHandler "github.com/seeley-chen/vsb-server/internal/handler/permission"
-	"github.com/seeley-chen/vsb-server/internal/handler/permission/department"
-	"github.com/seeley-chen/vsb-server/internal/handler/permission/role"
-	"github.com/seeley-chen/vsb-server/internal/handler/permission/user"
-	permissionRepo "github.com/seeley-chen/vsb-server/internal/repository/permission"
-	permissionSvc "github.com/seeley-chen/vsb-server/internal/service/permission"
+	"github.com/Vanselyn/vsb-server/internal/deps"
+	"github.com/Vanselyn/vsb-server/internal/domain/permission/department"
+	"github.com/Vanselyn/vsb-server/internal/domain/permission/role"
+	"github.com/Vanselyn/vsb-server/internal/domain/permission/user"
 )
 
-// Register 组装 permission 大模块依赖并注册路由。
+// Register 组装 permission 大模块依赖并注册路由（均需鉴权）。
 func Register(d *deps.Deps, _ *mux.Router, protected *mux.Router) {
-	departmentRepo := permissionRepo.NewDepartmentRepo(d.DB)
-	roleRepo := permissionRepo.NewRoleRepo(d.DB)
-	userRepo := permissionRepo.NewUserRepo(d.DB)
+	departmentRepo := department.NewDepartmentRepo(d.DB)
+	roleRepo := role.NewRoleRepo(d.DB)
+	userRepo := user.NewUserRepo(d.DB)
 	d.EnsureIndexes(departmentRepo.EnsureIndexes)
 	d.EnsureIndexes(roleRepo.EnsureIndexes)
 
-	departmentSvc := permissionSvc.NewDepartmentService(departmentRepo)
-	roleSvc := permissionSvc.NewRoleService(roleRepo)
-	userSvc := permissionSvc.NewUserService(userRepo, d.JWTSecret, d.JWTExpire)
+	departmentSvc := department.NewDepartmentService(departmentRepo)
+	roleSvc := role.NewRoleService(roleRepo)
+	userSvc := user.NewUserService(userRepo)
 
-	hdl := permissionHandler.NewHandler(
-		department.NewHandler(departmentSvc),
-		role.NewHandler(roleSvc, userSvc),
-		user.NewHandler(userSvc),
-	)
-	hdl.RegisterRoutes(protected)
+	sub := protected.PathPrefix("/permission").Subrouter()
+	department.NewHandler(departmentSvc).RegisterRoutes(sub)
+	roleHdl := role.NewHandler(roleSvc, userSvc)
+	roleHdl.RegisterRoutes(sub)
+	user.NewHandler(userSvc).RegisterRoutes(sub)
+	sub.HandleFunc("/privileges", roleHdl.GetPrivileges).Methods("GET")
 }

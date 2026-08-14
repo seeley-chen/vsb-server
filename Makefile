@@ -1,4 +1,4 @@
-.PHONY: setup-hooks check fmt vet build tidy run
+.PHONY: setup-hooks check fmt vet build tidy run rename-module
 
 # 一键配置 git hooks（clone 项目后首先运行）
 setup-hooks:
@@ -39,3 +39,9 @@ tidy:
 # 启动服务
 run:
 	@go run cmd/server/main.go
+
+# 重命名 Go module path（切换/复制到新仓库时使用）
+# 用法: make rename-module NEW=github.com/owner/repo
+rename-module:
+	@if [ -z "$(NEW)" ]; then echo "❌ 用法: make rename-module NEW=github.com/owner/repo"; exit 1; fi
+	@OLD=$$(head -1 go.mod | sed 's/module //'); echo "🔄 $$OLD -> $(NEW)"; go mod edit -module $(NEW); OLD_S=$$(echo "$$OLD" | sed 's/\./_/g; s/\//_/g'); NEW_S=$$(echo "$(NEW)" | sed 's/\./_/g; s/\//_/g'); find . -type f \( -name '*.go' -o -name '*.yaml' -o -name '*.yml' -o -name '*.json' -o -name '*.md' \) -not -path './.git/*' -not -path './.vscode/*' -exec sed -i.bak -e "s|$$OLD|$(NEW)|g" -e "s|$$OLD_S|$$NEW_S|g" {} + ; find . -type f -name '*.bak' -not -path './.git/*' -not -path './.vscode/*' -delete; echo "✅ module path 已更新为 $(NEW)，建议运行 make check 验证"
