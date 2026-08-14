@@ -35,6 +35,7 @@ func Init(level string) {
 	if err != nil {
 		panic(err) // 如果构建失败，则panic
 	}
+	zap.ReplaceGlobals(Log) // 替换 zap 全局 logger，使 zap.L() 可用
 }
 
 // 提供简写函数

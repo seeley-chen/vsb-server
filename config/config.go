@@ -48,12 +48,9 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// GetJWTExpireDuration 将字符串解析为 time.Duration
+// GetJWTExpireDuration 将字符串解析为 time.Duration（Validate 已保证合法性）
 func (c *Config) GetJWTExpireDuration() time.Duration {
-	d, err := time.ParseDuration(c.JWTExpiration)
-	if err != nil {
-		return 24 * time.Hour // 解析失败默认 24h
-	}
+	d, _ := time.ParseDuration(c.JWTExpiration)
 	return d
 }
 

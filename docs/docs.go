@@ -50,13 +50,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                                    "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_internal_model_permission.User"
+                                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_internal_model_permission.User"
                                         }
                                     }
                                 }
@@ -66,19 +66,19 @@ const docTemplate = `{
                     "400": {
                         "description": "参数错误或账号已存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     }
                 }
@@ -112,31 +112,31 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "404": {
                         "description": "用户不存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     }
                 }
@@ -182,31 +182,31 @@ const docTemplate = `{
                     "200": {
                         "description": "更新成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "404": {
                         "description": "用户不存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     }
                 }
@@ -250,13 +250,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                                    "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.PageData"
+                                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.PageData"
                                         }
                                     }
                                 }
@@ -266,13 +266,13 @@ const docTemplate = `{
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     }
                 }
@@ -308,7 +308,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                                    "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                                 },
                                 {
                                     "type": "object",
@@ -324,19 +324,19 @@ const docTemplate = `{
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "401": {
                         "description": "用户名或密码错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
                         }
                     }
                 }
@@ -344,7 +344,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_seeley-chen_vsb-server_internal_model_permission.User": {
+        "github_com_Vanselyn_vsb-server_internal_model_permission.User": {
             "type": "object",
             "properties": {
                 "account": {
@@ -370,7 +370,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_seeley-chen_vsb-server_pkg_response.PageData": {
+        "github_com_Vanselyn_vsb-server_pkg_response.PageData": {
             "type": "object",
             "properties": {
                 "list": {
@@ -390,7 +390,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_seeley-chen_vsb-server_pkg_response.Response": {
+        "github_com_Vanselyn_vsb-server_pkg_response.Response": {
             "type": "object",
             "properties": {
                 "code": {

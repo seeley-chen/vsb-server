@@ -5,13 +5,20 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 )
 
-// BindJSON 解析 JSON body，失败时写入 400 并返回 false。
+var validate = validator.New()
+
+// BindJSON 解析 JSON body 并校验 validate tag，失败时写入 400 并返回 false。
 func BindJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
 	if err := json.NewDecoder(r.Body).Decode(dst); err != nil {
 		Fail(w, http.StatusBadRequest, CodeBadRequest, "invalid request")
+		return false
+	}
+	if err := validate.Struct(dst); err != nil {
+		Fail(w, http.StatusBadRequest, CodeBadRequest, "invalid request: "+err.Error())
 		return false
 	}
 	return true

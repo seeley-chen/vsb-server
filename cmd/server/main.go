@@ -19,11 +19,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/seeley-chen/vsb-server/config"
-	"github.com/seeley-chen/vsb-server/internal/database"
-	"github.com/seeley-chen/vsb-server/internal/middleware"
-	"github.com/seeley-chen/vsb-server/internal/router"
-	"github.com/seeley-chen/vsb-server/pkg/logger"
+	"github.com/Vanselyn/vsb-server/config"
+	"github.com/Vanselyn/vsb-server/internal/database"
+	"github.com/Vanselyn/vsb-server/internal/middleware"
+	"github.com/Vanselyn/vsb-server/internal/router"
+	"github.com/Vanselyn/vsb-server/pkg/logger"
 )
 
 func main() {
@@ -40,14 +40,19 @@ func main() {
 	log.Printf("config loaded: port=%s, db=%s", cfg.ServerPort, cfg.MongoDB)
 
 	// 3. 连接 MongoDB
-	if err := database.Connect(cfg.MongoURI, cfg.MongoDB); err != nil {
+	client, db, err := database.Connect(cfg.MongoURI, cfg.MongoDB)
+	if err != nil {
 		log.Fatalf("failed to connect mongodb: %v", err)
 	}
-	defer database.Disconnect()
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		_ = client.Disconnect(ctx)
+	}()
 	log.Println("mongodb connected")
 
 	// 4. 创建路由器
-	r := router.New(cfg, database.GetDB(), logger.Log)
+	r := router.New(cfg, db, logger.Log)
 
 	// 5. 启动 HTTP 服务（优雅关停）
 	addr := fmt.Sprintf(":%s", cfg.ServerPort)

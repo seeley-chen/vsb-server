@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  github_com_seeley-chen_vsb-server_internal_model_permission.User:
+  github_com_Vanselyn_vsb-server_internal_model_permission.User:
     properties:
       account:
         type: string
@@ -17,7 +17,7 @@ definitions:
       username:
         type: string
     type: object
-  github_com_seeley-chen_vsb-server_pkg_response.PageData:
+  github_com_Vanselyn_vsb-server_pkg_response.PageData:
     properties:
       list:
         description: 列表
@@ -31,7 +31,7 @@ definitions:
         description: 总条数
         type: integer
     type: object
-  github_com_seeley-chen_vsb-server_pkg_response.Response:
+  github_com_Vanselyn_vsb-server_pkg_response.Response:
     properties:
       code:
         description: 状态码
@@ -107,23 +107,23 @@ paths:
           description: 创建成功
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            - $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_seeley-chen_vsb-server_internal_model_permission.User'
+                  $ref: '#/definitions/github_com_Vanselyn_vsb-server_internal_model_permission.User'
               type: object
         "400":
           description: 参数错误或账号已存在
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
       security:
       - ApiKeyAuth: []
       summary: 创建用户
@@ -144,23 +144,23 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
       security:
       - ApiKeyAuth: []
       summary: 删除用户
@@ -189,23 +189,23 @@ paths:
         "200":
           description: 更新成功
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "404":
           description: 用户不存在
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
       security:
       - ApiKeyAuth: []
       summary: 编辑用户
@@ -232,19 +232,19 @@ paths:
           description: 用户列表
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            - $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.PageData'
+                  $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.PageData'
               type: object
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
       security:
       - ApiKeyAuth: []
       summary: 获取用户列表
@@ -269,7 +269,7 @@ paths:
           description: 登录成功
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            - $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
             - properties:
                 data:
                   $ref: '#/definitions/internal_handler_permission_user.LoginResponse'
@@ -277,15 +277,15 @@ paths:
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "401":
           description: 用户名或密码错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_seeley-chen_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
       summary: 用户登录
       tags:
       - 用户管理
