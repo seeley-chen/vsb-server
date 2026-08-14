@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/Vanselyn/vsb-server/internal/tools"
 	"github.com/Vanselyn/vsb-server/pkg/response"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -77,16 +76,6 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		zap.L().Error("list users failed", zap.Error(err))
 		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)
 		return
-	}
-
-	// 脱敏 email/phone
-	for _, u := range users {
-		if u.Email != "" {
-			u.Email = tools.MaskString(u.Email, 1, 4)
-		}
-		if u.Phone != "" {
-			u.Phone = tools.MaskString(u.Phone, 3, 4)
-		}
 	}
 
 	response.Success(w, response.PageData{

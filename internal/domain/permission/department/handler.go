@@ -58,8 +58,10 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	pageIndex, pageSize := response.PageQuery(r)
+	q := r.URL.Query()
+	name := q.Get("name")
 
-	departments, total, err := h.svc.GetDepartmentList(r.Context(), pageIndex, pageSize)
+	departments, total, err := h.svc.GetDepartmentList(r.Context(), pageIndex, pageSize, name)
 	if err != nil {
 		zap.L().Error("list departments failed", zap.Error(err))
 		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)
