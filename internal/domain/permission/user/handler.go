@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Vanselyn/vsb-server/internal/middleware"
 	"github.com/Vanselyn/vsb-server/pkg/response"
 	"github.com/gorilla/mux"
-	"go.uber.org/zap"
 )
 
 type Handler struct {
@@ -26,8 +26,9 @@ func (h *Handler) RegisterRoutes(r *mux.Router) {
 	sub.HandleFunc("/delete/{id}", h.Delete).Methods("DELETE")
 }
 
-// handleErr 统一处理 service 层错误
-func (h *Handler) handleErr(w http.ResponseWriter, err error, op string) {
+// handleErr 统一处理 service 层错误：已知业务错误映射为对应 HTTP 响应，
+// 未知错误（default）通过 middleware.LogError 记录带 request_id 的底层错误日志后返回 500。
+func (h *Handler) handleErr(w http.ResponseWriter, r *http.Request, err error, op string) {
 	switch {
 	case errors.Is(err, ErrUserNameEmpty):
 		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "user name is required")
@@ -44,7 +45,7 @@ func (h *Handler) handleErr(w http.ResponseWriter, err error, op string) {
 	case errors.Is(err, ErrUserNotFound):
 		response.Fail(w, http.StatusNotFound, response.CodeNotFound, "user not found")
 	default:
-		zap.L().Error(op, zap.Error(err))
+		middleware.LogError(r, op, err)
 		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)
 	}
 }
@@ -57,7 +58,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.svc.CreateUser(r.Context(), &req)
 	if err != nil {
-		h.handleErr(w, err, "create user failed")
+		h.handleErr(w, r, err, "create user failed")
 		return
 	}
 
@@ -73,8 +74,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 	users, total, err := h.svc.GetUserList(r.Context(), pageIndex, pageSize, username, account, email)
 	if err != nil {
-		zap.L().Error("list users failed", zap.Error(err))
-		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)
+		h.handleErr(w, r, err, "list users failed")
 		return
 	}
 
@@ -99,7 +99,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.svc.UpdateUser(r.Context(), userID, &req)
 	if err != nil {
-		h.handleErr(w, err, "update user failed")
+		h.handleErr(w, r, err, "update user failed")
 		return
 	}
 
@@ -113,7 +113,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.svc.DeleteUser(r.Context(), userID); err != nil {
-		h.handleErr(w, err, "delete user failed")
+		h.handleErr(w, r, err, "delete user failed")
 		return
 	}
 

@@ -87,10 +87,11 @@ Swagger UI：`http://localhost:8080/swagger/index.html`
 | `MONGODB_DB` | 否 | `vsb` | 数据库名称 |
 | `JWT_SECRET` | **是** | — | JWT 签名密钥 |
 | `JWT_EXPIRATION` | 否 | `24h` | Token 有效期，Go duration 格式（如 `24h`、`30m`） |
-| `LOG_LEVEL` | 否 | `info` | 日志级别（zap） |
+| `LOG_LEVEL` | 否 | `info` | 日志级别：`debug` / `info` / `warn` / `error` |
+| `LOG_BODY` | 否 | `masked` | 请求/响应 body 日志模式：`full`（完整）/ `masked`（敏感字段脱敏）/ `off`（仅长度），详见[日志与排障](#日志与排障) |
 | `CORS_ALLOWED_ORIGINS` | 否 | 空 | 允许跨域的前端 Origin，逗号分隔 |
 
-启动校验：`MONGODB_URI`、`JWT_SECRET` 不能为空，`JWT_EXPIRATION` 必须为合法 duration，否则直接退出。`.env` 含敏感信息，不要提交到 Git。
+启动校验：`MONGODB_URI`、`JWT_SECRET` 不能为空，`JWT_EXPIRATION` 必须为合法 duration，`LOG_BODY` 必须为 `full`/`masked`/`off` 之一，否则直接退出。`.env` 含敏感信息，不要提交到 Git。
 
 ## Make 命令
 
@@ -105,6 +106,7 @@ Swagger UI：`http://localhost:8080/swagger/index.html`
 | `make run` | 启动服务 |
 | `make install-air` | 安装 live-reload 工具 air（首次使用开发模式自动安装，无需手动跑） |
 | `make dev` | **开发模式**：监听 `.go` / `.env` 文件变化，自动 rebuild + 重启（依赖 air） |
+| `make status` | 检查开发服务状态：air 进程 + 端口监听 + 健康检查，排查"改了代码没生效"时优先运行 |
 | `make rename-module NEW=<新地址>` | 重命名 Go module path（见文末） |
 
 ## 模块与 API
@@ -159,7 +161,7 @@ CORS（main.go 外层包裹）
 | CORS | `middleware/cors.go` | 白名单 Origin，须包裹在 mux 外层以处理 OPTIONS 预检 |
 | Recover | `middleware/recover.go` | 捕获 panic，返回 500 |
 | MaxBodySize | `middleware/bodylimit.go` | 限制请求体大小 |
-| Logger | `middleware/logger.go` | 记录请求方法、路径、耗时 |
+| Logger | `middleware/logger.go` | 记录 request_id、method、path、query、status、duration、user_id、req_body、resp_body 等，按状态码分级（≥500 Error / ≥400 Warn），body 粒度由 `LOG_BODY` 控制 |
 | Auth | `middleware/auth.go` | 解析 Bearer Token，将 `userId` 写入 context |
 
 ### JWT 认证
@@ -194,6 +196,89 @@ CORS（main.go 外层包裹）
 3. 在 `internal/module/module.go` 的 `All` 中追加该 `Register`
 4. 需要索引时通过 `d.EnsureIndexes(repo.EnsureIndexes)` 注册
 5. 运行 `make check` 验证
+
+## 日志与排障
+
+### 启动 banner
+
+每次服务启动（含 air 热重载）会打印一条 banner，用于确认新代码已生效：
+
+```
+🚀 vsb-server started | pid=12345 | addr=:8080 | log_body=full | time=2026-08-14 20:15:03
+```
+
+改代码保存后，看到新的 banner 出现即表示 air 已重新编译并启动；没看到说明编译失败（看 air 终端的红色错误）或端口被占。
+
+### 请求日志
+
+每个请求由 Logger 中间件记录一条结构化日志，字段含 `request_id`、`method`、`path`、`query`、`status`、`duration`、`ip`、`ua`、`user_id`、`req_body`、`resp_body`。按状态码分级：
+
+| 状态码 | 级别 | 颜色 |
+|--------|------|------|
+| ≥ 500 | ERROR | 红色 |
+| ≥ 400 | WARN  | 黄色 |
+| 其他  | INFO  | 默认 |
+
+每个请求的 `request_id` 同时写入响应头 `X-Request-ID`。前端报错时把该值给你，即可在终端日志中精准定位该请求的完整请求体与响应体。
+
+### body 日志模式（`LOG_BODY`）
+
+通过 `.env` 的 `LOG_BODY` 控制请求/响应 body 在日志中的展示粒度，三档可选：
+
+| 值 | 说明 | 适用场景 |
+|------|------|----------|
+| `full` | 完整 body 内容（超 1KB 截断） | 本地开发调试，看前端到底发了什么 |
+| `masked` | 敏感字段（`password`/`secret`/`token` 等）值替换为 `***`，其余正常展示 | 默认值，半安全，联调/测试环境 |
+| `off` | 只展示 body 长度 `(123 bytes)`，不展示内容 | 生产环境，防泄露 |
+
+示例（登录请求，`LOG_BODY=masked`）：
+
+```json
+// req_body
+{"account":"admin","password":"***"}
+// resp_body
+{"code":0,"message":"success","data":{"token":"***"}}
+```
+
+开发时建议设为 `full`：
+
+```bash
+# .env
+LOG_BODY=full
+```
+
+修改后 air 会自动重启（`.env` 在监听范围内）。
+
+### 错误日志
+
+- **请求维度**：Logger 中间件对 4xx/5xx 自动打 Warn/Error，带 `resp_body`（前端看到的消息）
+- **底层错误**：handler 的 `handleErr` 对未知错误（500）通过 `middleware.LogError` 打一条带 `request_id` 的 Error 日志，记录原始 `error`（如 MongoDB 报错细节）
+
+两条日志通过相同的 `request_id` 关联，一条看请求上下文，一条看错误根因。
+
+### 服务状态检查
+
+排查"改了代码没生效"或"前端连不上"时，先跑：
+
+```bash
+make status
+```
+
+输出示例（正常）：
+
+```
+🔍 服务状态检查...
+✅ air 运行中 (pid=56068)
+✅ :8080 端口监听中
+   vsb-server 56123 seeley  7u  IPv4 ... TCP *:8080 (LISTEN)
+---
+✅ /health 响应正常
+```
+
+异常时给出 ❌ 并提示原因（如"端口未监听：服务未启动或编译失败，检查 air 终端输出"）。常见问题：
+
+- **air 在跑但端口没监听** → 编译失败，看 air 终端红色错误；或端口被其他进程占用（如 VS Code 调试器 `__debug_bin*`），用 `lsof -i :8080` 查占用
+- **air 没在跑** → 用 `make dev` 启动
 
 ## Swagger 文档
 

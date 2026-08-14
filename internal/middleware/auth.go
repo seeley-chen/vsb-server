@@ -9,9 +9,7 @@ import (
 	"github.com/Vanselyn/vsb-server/pkg/response"
 )
 
-type contextKey string
-
-const UserIDKey contextKey = "user_id"
+// 注意：contextKey / UserIDKey / RequestIDKey 已在 logger.go 统一定义，避免重复。
 
 // Auth JWT 鉴权中间件
 func Auth(jwtSecret string) func(http.Handler) http.Handler {
@@ -36,8 +34,10 @@ func Auth(jwtSecret string) func(http.Handler) http.Handler {
 				return
 			}
 
-			// 将 userId 放入 context
+			// 将 userId 放入 context（供 handler 取用）
 			ctx := context.WithValue(r.Context(), UserIDKey, userId)
+			// 同步回写 reqInfo，让外层 Logger 能在请求结束时记录 user_id
+			setReqInfoUserID(ctx, userId)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

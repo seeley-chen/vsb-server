@@ -22,7 +22,7 @@ func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router
 
 	r.Use(middleware.Recover(logger))
 	r.Use(middleware.MaxBodySize(1 << 20)) // 1MB
-	r.Use(middleware.Logger(logger))
+	r.Use(middleware.Logger(logger, cfg.LogBody))
 
 	// 健康检查
 	r.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
