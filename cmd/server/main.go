@@ -36,6 +36,7 @@ func main() {
 	// 2. 初始化日志
 	logger.Init(cfg.LogLevel)
 	defer logger.Sync()
+	middleware.InitLogViewer(500)
 
 	log.Printf("config loaded: port=%s, db=%s, log_level=%s, log_body=%s", cfg.ServerPort, cfg.MongoDB, cfg.LogLevel, cfg.LogBody)
 

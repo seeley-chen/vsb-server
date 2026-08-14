@@ -177,14 +177,34 @@ func Logger(logger *zap.Logger, bodyMode string) func(http.Handler) http.Handler
 				zap.String("resp_body", formatBody(rec.response.Bytes(), bodyMode)),
 			}
 
+			level := "INFO"
 			switch {
 			case rec.status >= 500:
+				level = "ERROR"
 				logger.Error("request", fields...)
 			case rec.status >= 400:
+				level = "WARN"
 				logger.Warn("request", fields...)
 			default:
 				logger.Info("request", fields...)
 			}
+
+			// 推送到日志查看器（SSE 网页）
+			addLogEntry(LogEntry{
+				Time:      start,
+				Level:     level,
+				RequestID: requestID,
+				Method:    r.Method,
+				Path:      r.URL.Path,
+				Query:     r.URL.RawQuery,
+				Status:    rec.status,
+				Duration:  duration.String(),
+				IP:        clientIP(r),
+				UA:        r.UserAgent(),
+				UserID:    ri.userID,
+				ReqBody:   formatBody(reqBody, bodyMode),
+				RespBody:  formatBody(rec.response.Bytes(), bodyMode),
+			})
 		})
 	}
 }

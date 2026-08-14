@@ -25,7 +25,7 @@ vsb-server/
 ├── internal/
 │   ├── database/          # MongoDB 连接
 │   ├── deps/              # 依赖容器（Deps：DB、JWT、Logger、EnsureIndexes）
-│   ├── middleware/        # 中间件：cors / recover / bodylimit / logger / auth
+│   ├── middleware/        # 中间件：cors / recover / bodylimit / logger / auth / logviewer
 │   ├── module/            # 大模块装配（permission、login），由 module.go 汇总
 │   ├── router/            # 路由组装（公开 / 受保护子路由）
 │   ├── domain/            # 业务模块，每个模块自包含 handler/model/repository/service
@@ -140,7 +140,7 @@ Swagger UI：`http://localhost:8080/swagger/index.html`
 
 `internal/router/router.go` 组装依赖并注册路由：
 
-- **公开路由**：挂在根 Router（如 `/health`、`/api/login`）
+- **公开路由**：挂在根 Router（如 `/health`、`/api/login`、`/admin/logs` 日志查看器）
 - **受保护路由**：挂在 `/api` 子路由并应用 `middleware.Auth`（department / role / user / privileges）
 - **Swagger**：`/swagger/` 前缀，无需鉴权
 
@@ -255,6 +255,31 @@ LOG_BODY=full
 - **底层错误**：handler 的 `handleErr` 对未知错误（500）通过 `middleware.LogError` 打一条带 `request_id` 的 Error 日志，记录原始 `error`（如 MongoDB 报错细节）
 
 两条日志通过相同的 `request_id` 关联，一条看请求上下文，一条看错误根因。
+
+### 日志查看器（网页）
+
+控制台日志刷屏难看？项目内置一个类似 Swagger UI 的实时日志网页，把请求日志以表格形式可视化展示，支持实时刷新、级别筛选、关键词搜索、展开查看 body 详情。
+
+- 访问地址：`http://localhost:8080/admin/logs`（无需 token，仅开发排障用）
+- 数据来源：Logger 中间件记录的每条请求日志，同时推送到内存环形缓冲区（默认 500 条）并经 SSE 实时广播给网页
+
+功能：
+
+| 功能 | 说明 |
+|------|------|
+| 实时刷新 | SSE 推送，新请求自动出现在顶部，无需手动刷新 |
+| 历史日志 | 打开页面即加载最近 500 条缓冲区日志 |
+| 级别筛选 | 全部 / INFO / WARN / ERROR 一键切换 |
+| 关键词搜索 | 按 `path` 或 `request_id` 过滤 |
+| 展开详情 | 点击任一行展开 `user_id` / `ip` / `ua` / `req_body` / `resp_body` |
+| 暂停 / 清空 | 暂停接收新日志便于查看，或清空当前页面 |
+| 断线重连 | SSE 断开后 3 秒自动重连 |
+
+> body 内容同样受 `LOG_BODY` 模式控制：`full` 看完整、`masked` 脱敏敏感字段、`off` 只看长度。开发时建议 `LOG_BODY=full` 以便在网页中直接看到前端发来的完整请求体。
+
+相关代码：`internal/middleware/logviewer.go`（环形缓冲 + SSE）、`internal/middleware/logviewer_html.go`（内嵌页面）、路由注册在 `internal/router/router.go` 的 `/admin/logs` 与 `/admin/logs/stream`。
+
+> 安全提示：`/admin/logs` 当前为公开路由，仅用于本地开发。生产环境请通过反向代理屏蔽或加 IP 白名单。
 
 ### 服务状态检查
 

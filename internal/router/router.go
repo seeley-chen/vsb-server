@@ -30,6 +30,10 @@ func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router
 		_, _ = w.Write([]byte("ok"))
 	}).Methods("GET")
 
+	// 日志查看器（SSE 实时网页，开发排障用）
+	r.HandleFunc("/admin/logs", middleware.LogViewerPage).Methods("GET")
+	r.HandleFunc("/admin/logs/stream", middleware.LogViewerStream).Methods("GET")
+
 	d := &deps.Deps{
 		DB:        db,
 		JWTSecret: cfg.JWTSecret,
