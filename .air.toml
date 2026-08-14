@@ -1,0 +1,31 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/vsb-server ./cmd/server"
+  bin = "./tmp/vsb-server"
+  include_ext = ["go", "env"]
+  exclude_dir = ["assets", "tmp", "vendor", "docs", ".git", ".vscode"]
+  exclude_file = ["_test.go"]
+  exclude_regex = ["_test\\.go", "\\.md$"]
+  exclude_unchanged = false
+  follow_symlink = false
+  full_bin = ""
+  send_interrupt = true
+  kill_delay = "2s"
+  delay = 500
+  stop_on_error = true
+  run_on_start = true
+  pre_cmd = ["go mod tidy"]
+
+[color]
+  main = "magenta"
+  watcher = "cyan"
+  build = "yellow"
+  runner = "green"
+
+[log]
+  time = false
+
+[misc]
+  clean_on_exit = true

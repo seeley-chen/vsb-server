@@ -103,6 +103,8 @@ Swagger UI：`http://localhost:8080/swagger/index.html`
 | `make build` | 编译 |
 | `make tidy` | 整理依赖（go mod tidy） |
 | `make run` | 启动服务 |
+| `make install-air` | 安装 live-reload 工具 air（首次使用开发模式自动安装，无需手动跑） |
+| `make dev` | **开发模式**：监听 `.go` / `.env` 文件变化，自动 rebuild + 重启（依赖 air） |
 | `make rename-module NEW=<新地址>` | 重命名 Go module path（见文末） |
 
 ## 模块与 API

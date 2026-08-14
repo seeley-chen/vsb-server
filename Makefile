@@ -1,4 +1,4 @@
-.PHONY: setup-hooks check fmt vet build tidy run rename-module
+.PHONY: setup-hooks check fmt vet build tidy run dev install-air rename-module
 
 # 一键配置 git hooks（clone 项目后首先运行）
 setup-hooks:
@@ -39,6 +39,15 @@ tidy:
 # 启动服务
 run:
 	@go run cmd/server/main.go
+
+# 安装 live-reload 工具 air（首次使用时运行一次）
+install-air:
+	@go install github.com/air-verse/air@latest
+	@echo "✅ air 已安装，路径: $$(go env GOPATH)/bin/air（请确保 GOPATH/bin 在 PATH 中）"
+
+# 开发模式：监听文件变化自动 rebuild + 重启（依赖 air）
+dev: install-air
+	@air
 
 # 重命名 Go module path（切换/复制到新仓库时使用）
 # 用法: make rename-module NEW=github.com/owner/repo

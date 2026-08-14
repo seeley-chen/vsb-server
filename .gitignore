@@ -1,3 +1,7 @@
 vendor/
 swagger/
 *.exe
+
+# air live reload 编译输出
+tmp/
+*.air.toml.bak
