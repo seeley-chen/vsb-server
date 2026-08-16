@@ -6,6 +6,7 @@ import (
 	"github.com/Vanselyn/vsb-server/internal/deps"
 	"github.com/Vanselyn/vsb-server/internal/module/login"
 	"github.com/Vanselyn/vsb-server/internal/module/permission"
+	"github.com/Vanselyn/vsb-server/internal/module/product"
 )
 
 // Registrar 大模块注册函数：完成依赖注入并挂载路由。
@@ -16,4 +17,5 @@ type Registrar func(d *deps.Deps, public, protected *mux.Router)
 var All = []Registrar{
 	permission.Register,
 	login.Register,
+	product.Register,
 }

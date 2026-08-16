@@ -128,6 +128,10 @@ func LogViewerStream(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no") // nginx 不缓冲
 
+	// 取消 WriteTimeout，否则 SSE 长连接会在超时后被 server 强制关闭
+	rc := http.NewResponseController(w)
+	_ = rc.SetWriteDeadline(time.Time{})
+
 	// 推送历史日志
 	for _, e := range defaultBuffer.snapshot() {
 		writeSSE(w, e)

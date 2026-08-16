@@ -59,6 +59,14 @@ func (r *statusRecorder) Write(b []byte) (int, error) {
 	return r.ResponseWriter.Write(b)
 }
 
+// Flush 透传到底层 ResponseWriter，使 statusRecorder 满足 http.Flusher 接口。
+// 否则 SSE 等流式 handler 中的 w.(http.Flusher) 断言会失败。
+func (r *statusRecorder) Flush() {
+	if f, ok := r.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
 // truncateBody 截断 body 用于日志展示
 func truncateBody(b []byte) string {
 	if len(b) == 0 {
@@ -166,15 +174,15 @@ func Logger(logger *zap.Logger, bodyMode string) func(http.Handler) http.Handler
 				zap.String("request_id", requestID),
 				zap.String("method", r.Method),
 				zap.String("path", r.URL.Path),
-				zap.String("query", r.URL.RawQuery),
+				// zap.String("query", r.URL.RawQuery),
 				zap.Int("status", rec.status),
-				zap.Duration("duration", duration),
-				zap.String("ip", clientIP(r)),
-				zap.String("ua", r.UserAgent()),
-				zap.Int64("content_length", r.ContentLength),
-				zap.String("user_id", ri.userID),
+				// zap.Duration("duration", duration),
+				// zap.String("ip", clientIP(r)),
+				// zap.String("ua", r.UserAgent()),
+				// zap.Int64("content_length", r.ContentLength),
+				// zap.String("user_id", ri.userID),
 				zap.String("req_body", formatBody(reqBody, bodyMode)),
-				zap.String("resp_body", formatBody(rec.response.Bytes(), bodyMode)),
+				// zap.String("resp_body", formatBody(rec.response.Bytes(), bodyMode)),
 			}
 
 			level := "INFO"
