@@ -48,6 +48,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, data *UserRequest) (*UserResp
 		UserId:       idgen.GenerateUniqueID(),
 		Username:     data.Username,
 		Account:      data.Account,
+		Identity:     data.Identity,
 		PasswordHash: string(hashedPassword),
 		Email:        data.Email,
 		Phone:        data.Phone,
@@ -190,6 +191,9 @@ func (r *UserRepo) UpdateUser(ctx context.Context, data *UserUpdateRequest) (*Us
 	}
 	if data.DepartmentId != "" {
 		update["department_id"] = data.DepartmentId
+	}
+	if data.Identity != "" {
+		update["identity"] = data.Identity
 	}
 
 	if _, err := r.collection.UpdateOne(ctx, bson.M{"user_id": data.UserId}, bson.M{"$set": update}); err != nil {

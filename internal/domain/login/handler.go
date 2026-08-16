@@ -27,7 +27,7 @@ func (h *Handler) RegisterRoutes(r *mux.Router) {
 func (h *Handler) handleErr(w http.ResponseWriter, r *http.Request, err error, op string) {
 	switch {
 	case errors.Is(err, ErrInvalidAccount), errors.Is(err, ErrInvalidPassword):
-		response.Fail(w, http.StatusBadRequest, response.CodeBadRequest, "invalid account or password")
+		response.Fail(w, http.StatusBadRequest, response.CodeNotFound, "invalid account or password")
 	default:
 		middleware.LogError(r, op, err)
 		response.Fail(w, http.StatusInternalServerError, response.CodeInternalError)
