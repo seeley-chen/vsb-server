@@ -17,6 +17,7 @@ type Config struct {
 	JWTSecret          string
 	JWTExpiration      string // 原始字符串，如 "24h"
 	LogLevel           string
+	LogBody            string // 请求/响应 body 日志模式：full / masked / off
 	CORSAllowedOrigins []string
 }
 
@@ -30,6 +31,7 @@ func Load() *Config {
 		JWTSecret:          getEnv("JWT_SECRET", ""),
 		JWTExpiration:      getEnv("JWT_EXPIRATION", "24h"),
 		LogLevel:           getEnv("LOG_LEVEL", "info"),
+		LogBody:            getEnv("LOG_BODY", "masked"),
 		CORSAllowedOrigins: parseCSV(getEnv("CORS_ALLOWED_ORIGINS", "")),
 	}
 }
@@ -44,6 +46,11 @@ func (c *Config) Validate() error {
 	}
 	if _, err := time.ParseDuration(c.JWTExpiration); err != nil {
 		return fmt.Errorf("invalid JWT_EXPIRATION %q: %w", c.JWTExpiration, err)
+	}
+	switch c.LogBody {
+	case "full", "masked", "off":
+	default:
+		return fmt.Errorf("invalid LOG_BODY %q: must be one of full/masked/off", c.LogBody)
 	}
 	return nil
 }

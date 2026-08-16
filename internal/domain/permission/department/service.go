@@ -65,8 +65,8 @@ func (s *DepartmentService) GetDepartmentById(ctx context.Context, departmentId 
 }
 
 /** 获取部门列表 */
-func (s *DepartmentService) GetDepartmentList(ctx context.Context, pageIndex, pageSize int) ([]*DepartmentResponse, int64, error) {
-	return s.repo.GetDepartmentList(ctx, pageIndex, pageSize)
+func (s *DepartmentService) GetDepartmentList(ctx context.Context, pageIndex, pageSize int, name string) ([]*DepartmentResponse, int64, error) {
+	return s.repo.GetDepartmentList(ctx, pageIndex, pageSize, name)
 }
 
 /** 更新部门 */

@@ -2,7 +2,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Server",
+            // 日常开发：air 热重载，改代码自动 rebuild + 重启
+            "name": "Dev (Air Hot Reload)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "make dev",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            // 断点调试：先停掉上面的 Dev，二者共用 8080，不能同时运行
+            "name": "Launch Server (Debug)",
             "type": "go",
             "request": "launch",
             "mode": "auto",

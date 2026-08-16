@@ -2,6 +2,7 @@ package department
 
 import (
 	"context"
+	"regexp"
 	"time"
 
 	"github.com/Vanselyn/vsb-server/pkg/idgen"
@@ -53,8 +54,16 @@ func (r *DepartmentRepo) CreateDepartment(ctx context.Context, data *DepartmentR
 }
 
 // 获取部门列表
-func (r *DepartmentRepo) GetDepartmentList(ctx context.Context, pageIndex, pageSize int) ([]*DepartmentResponse, int64, error) {
-	total, err := r.collection.CountDocuments(ctx, bson.M{})
+func (r *DepartmentRepo) GetDepartmentList(ctx context.Context, pageIndex, pageSize int, name string) ([]*DepartmentResponse, int64, error) {
+	filter := bson.M{}
+	if name != "" {
+		filter["name"] = bson.M{
+			"$regex":   regexp.QuoteMeta(name),
+			"$options": "i",
+		}
+	}
+
+	total, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -64,7 +73,7 @@ func (r *DepartmentRepo) GetDepartmentList(ctx context.Context, pageIndex, pageS
 		SetLimit(int64(pageSize)).
 		SetSort(bson.D{{Key: "created_at", Value: -1}})
 
-	cursor, err := r.collection.Find(ctx, bson.M{}, findOptions)
+	cursor, err := r.collection.Find(ctx, filter, findOptions)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -6,14 +6,14 @@
 
 ## 技术栈
 
-| 类别 | 选型 |
-|------|------|
-| 语言 | Go 1.26 |
-| HTTP 路由 | gorilla/mux |
-| 数据库 | MongoDB |
-| 认证 | JWT (HS256) |
-| 日志 | zap |
-| API 文档 | swaggo/swag + http-swagger |
+| 类别      | 选型                       |
+| --------- | -------------------------- |
+| 语言      | Go 1.26                    |
+| HTTP 路由 | gorilla/mux                |
+| 数据库    | MongoDB                    |
+| 认证      | JWT (HS256)                |
+| 日志      | zap                        |
+| API 文档  | swaggo/swag + http-swagger |
 
 ## 项目结构
 
@@ -25,7 +25,7 @@ vsb-server/
 ├── internal/
 │   ├── database/          # MongoDB 连接
 │   ├── deps/              # 依赖容器（Deps：DB、JWT、Logger、EnsureIndexes）
-│   ├── middleware/        # 中间件：cors / recover / bodylimit / logger / auth
+│   ├── middleware/        # 中间件：cors / recover / bodylimit / logger / auth / logviewer
 │   ├── module/            # 大模块装配（permission、login），由 module.go 汇总
 │   ├── router/            # 路由组装（公开 / 受保护子路由）
 │   ├── domain/            # 业务模块，每个模块自包含 handler/model/repository/service
@@ -80,30 +80,34 @@ Swagger UI：`http://localhost:8080/swagger/index.html`
 
 通过 `.env` 或系统环境变量加载，由 `config/config.go` 统一读取并在启动时校验。
 
-| 变量 | 必填 | 默认值 | 说明 |
-|------|------|--------|------|
-| `SERVER_PORT` | 否 | `8080` | HTTP 服务端口 |
-| `MONGODB_URI` | **是** | — | MongoDB 连接 URI |
-| `MONGODB_DB` | 否 | `vsb` | 数据库名称 |
-| `JWT_SECRET` | **是** | — | JWT 签名密钥 |
-| `JWT_EXPIRATION` | 否 | `24h` | Token 有效期，Go duration 格式（如 `24h`、`30m`） |
-| `LOG_LEVEL` | 否 | `info` | 日志级别（zap） |
-| `CORS_ALLOWED_ORIGINS` | 否 | 空 | 允许跨域的前端 Origin，逗号分隔 |
+| 变量                   | 必填   | 默认值   | 说明                                                                                                              |
+| ---------------------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| `SERVER_PORT`          | 否     | `8080`   | HTTP 服务端口                                                                                                     |
+| `MONGODB_URI`          | **是** | —        | MongoDB 连接 URI                                                                                                  |
+| `MONGODB_DB`           | 否     | `vsb`    | 数据库名称                                                                                                        |
+| `JWT_SECRET`           | **是** | —        | JWT 签名密钥                                                                                                      |
+| `JWT_EXPIRATION`       | 否     | `24h`    | Token 有效期，Go duration 格式（如 `24h`、`30m`）                                                                 |
+| `LOG_LEVEL`            | 否     | `info`   | 日志级别：`debug` / `info` / `warn` / `error`                                                                     |
+| `LOG_BODY`             | 否     | `masked` | 请求/响应 body 日志模式：`full`（完整）/ `masked`（敏感字段脱敏）/ `off`（仅长度），详见[日志与排障](#日志与排障) |
+| `CORS_ALLOWED_ORIGINS` | 否     | 空       | 允许跨域的前端 Origin，逗号分隔                                                                                   |
 
-启动校验：`MONGODB_URI`、`JWT_SECRET` 不能为空，`JWT_EXPIRATION` 必须为合法 duration，否则直接退出。`.env` 含敏感信息，不要提交到 Git。
+启动校验：`MONGODB_URI`、`JWT_SECRET` 不能为空，`JWT_EXPIRATION` 必须为合法 duration，`LOG_BODY` 必须为 `full`/`masked`/`off` 之一，否则直接退出。`.env` 含敏感信息，不要提交到 Git。
 
 ## Make 命令
 
-| 命令 | 说明 |
-| --- | --- |
-| `make setup-hooks` | 配置 git hooks（pre-commit / commit-msg），clone 后首次运行 |
-| `make check` | 全部检查：gofmt + go vet + go build（与 pre-commit 一致） |
-| `make fmt` | gofmt 格式化全部代码 |
-| `make vet` | 静态分析 |
-| `make build` | 编译 |
-| `make tidy` | 整理依赖（go mod tidy） |
-| `make run` | 启动服务 |
-| `make rename-module NEW=<新地址>` | 重命名 Go module path（见文末） |
+| 命令                              | 说明                                                                             |
+| --------------------------------- | -------------------------------------------------------------------------------- |
+| `make setup-hooks`                | 配置 git hooks（pre-commit / commit-msg），clone 后首次运行                      |
+| `make check`                      | 全部检查：gofmt + go vet + go build（与 pre-commit 一致）                        |
+| `make fmt`                        | gofmt 格式化全部代码                                                             |
+| `make vet`                        | 静态分析                                                                         |
+| `make build`                      | 编译                                                                             |
+| `make tidy`                       | 整理依赖（go mod tidy）                                                          |
+| `make run`                        | 启动服务                                                                         |
+| `make install-air`                | 安装 live-reload 工具 air（首次使用开发模式自动安装，无需手动跑）                |
+| `make dev`                        | **开发模式**：监听 `.go` / `.env` 文件变化，自动 rebuild + 重启（依赖 air）      |
+| `make status`                     | 检查开发服务状态：air 进程 + 端口监听 + 健康检查，排查"改了代码没生效"时优先运行 |
+| `make rename-module NEW=<新地址>` | 重命名 Go module path（见文末）                                                  |
 
 ## 模块与 API
 
@@ -113,13 +117,13 @@ Swagger UI：`http://localhost:8080/swagger/index.html`
 { "code": 0, "message": "success", "data": {} }
 ```
 
-| code | 含义 |
-|------|------|
-| `0` | 成功 |
-| `400` | 参数错误 |
+| code  | 含义                |
+| ----- | ------------------- |
+| `0`   | 成功                |
+| `400` | 参数错误            |
 | `401` | 未授权 / Token 无效 |
-| `404` | 资源不存在 |
-| `500` | 服务器内部错误 |
+| `404` | 资源不存在          |
+| `500` | 服务器内部错误      |
 
 分页列表的 `data`：
 
@@ -129,14 +133,13 @@ Swagger UI：`http://localhost:8080/swagger/index.html`
 
 鉴权：受保护接口需在 Header 携带 `Authorization: Bearer <token>`，token 由 `POST /api/login` 返回。
 
-
 ## 架构与约定
 
 ### 路由注册
 
 `internal/router/router.go` 组装依赖并注册路由：
 
-- **公开路由**：挂在根 Router（如 `/health`、`/api/login`）
+- **公开路由**：挂在根 Router（如 `/health`、`/api/login`、`/admin/logs` 日志查看器）
 - **受保护路由**：挂在 `/api` 子路由并应用 `middleware.Auth`（department / role / user / privileges）
 - **Swagger**：`/swagger/` 前缀，无需鉴权
 
@@ -152,13 +155,13 @@ CORS（main.go 外层包裹）
   → Auth（仅 /api 受保护子路由，JWT 校验）
 ```
 
-| 中间件 | 文件 | 要点 |
-|--------|------|------|
-| CORS | `middleware/cors.go` | 白名单 Origin，须包裹在 mux 外层以处理 OPTIONS 预检 |
-| Recover | `middleware/recover.go` | 捕获 panic，返回 500 |
-| MaxBodySize | `middleware/bodylimit.go` | 限制请求体大小 |
-| Logger | `middleware/logger.go` | 记录请求方法、路径、耗时 |
-| Auth | `middleware/auth.go` | 解析 Bearer Token，将 `userId` 写入 context |
+| 中间件      | 文件                      | 要点                                                                                                                                                         |
+| ----------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| CORS        | `middleware/cors.go`      | 白名单 Origin，须包裹在 mux 外层以处理 OPTIONS 预检                                                                                                          |
+| Recover     | `middleware/recover.go`   | 捕获 panic，返回 500                                                                                                                                         |
+| MaxBodySize | `middleware/bodylimit.go` | 限制请求体大小                                                                                                                                               |
+| Logger      | `middleware/logger.go`    | 记录 request_id、method、path、query、status、duration、user_id、req_body、resp_body 等，按状态码分级（≥500 Error / ≥400 Warn），body 粒度由 `LOG_BODY` 控制 |
+| Auth        | `middleware/auth.go`      | 解析 Bearer Token，将 `userId` 写入 context                                                                                                                  |
 
 ### JWT 认证
 
@@ -178,12 +181,12 @@ CORS（main.go 外层包裹）
 
 `cmd/server/main.go` 监听 `SIGINT` / `SIGTERM`，收到信号后停止接受新连接、等待进行中请求完成（最长 30 秒）、断开 MongoDB 连接、刷新日志。
 
-| 配置项 | 值 |
-|--------|-----|
-| ReadHeaderTimeout | 5s |
-| ReadTimeout | 15s |
-| WriteTimeout | 15s |
-| IdleTimeout | 60s |
+| 配置项            | 值  |
+| ----------------- | --- |
+| ReadHeaderTimeout | 5s  |
+| ReadTimeout       | 15s |
+| WriteTimeout      | 15s |
+| IdleTimeout       | 60s |
 
 ### 扩展新模块
 
@@ -192,6 +195,114 @@ CORS（main.go 外层包裹）
 3. 在 `internal/module/module.go` 的 `All` 中追加该 `Register`
 4. 需要索引时通过 `d.EnsureIndexes(repo.EnsureIndexes)` 注册
 5. 运行 `make check` 验证
+
+## 日志与排障
+
+### 启动 banner
+
+每次服务启动（含 air 热重载）会打印一条 banner，用于确认新代码已生效：
+
+```
+🚀 vsb-server started | pid=12345 | addr=:8080 | log_body=full | time=2026-08-14 20:15:03
+```
+
+改代码保存后，看到新的 banner 出现即表示 air 已重新编译并启动；没看到说明编译失败（看 air 终端的红色错误）或端口被占。
+
+### 请求日志
+
+每个请求由 Logger 中间件记录一条结构化日志，字段含 `request_id`、`method`、`path`、`query`、`status`、`duration`、`ip`、`ua`、`user_id`、`req_body`、`resp_body`。按状态码分级：
+
+| 状态码 | 级别  | 颜色 |
+| ------ | ----- | ---- |
+| ≥ 500  | ERROR | 红色 |
+| ≥ 400  | WARN  | 黄色 |
+| 其他   | INFO  | 默认 |
+
+每个请求的 `request_id` 同时写入响应头 `X-Request-ID`。前端报错时把该值给你，即可在终端日志中精准定位该请求的完整请求体与响应体。
+
+### body 日志模式（`LOG_BODY`）
+
+通过 `.env` 的 `LOG_BODY` 控制请求/响应 body 在日志中的展示粒度，三档可选：
+
+| 值       | 说明                                                                   | 适用场景                         |
+| -------- | ---------------------------------------------------------------------- | -------------------------------- |
+| `full`   | 完整 body 内容（超 1KB 截断）                                          | 本地开发调试，看前端到底发了什么 |
+| `masked` | 敏感字段（`password`/`secret`/`token` 等）值替换为 `***`，其余正常展示 | 默认值，半安全，联调/测试环境    |
+| `off`    | 只展示 body 长度 `(123 bytes)`，不展示内容                             | 生产环境，防泄露                 |
+
+示例（登录请求，`LOG_BODY=masked`）：
+
+```json
+// req_body
+{"account":"admin","password":"***"}
+// resp_body
+{"code":0,"message":"success","data":{"token":"***"}}
+```
+
+开发时建议设为 `full`：
+
+```bash
+# .env
+LOG_BODY=full
+```
+
+修改后 air 会自动重启（`.env` 在监听范围内）。
+
+### 错误日志
+
+- **请求维度**：Logger 中间件对 4xx/5xx 自动打 Warn/Error，带 `resp_body`（前端看到的消息）
+- **底层错误**：handler 的 `handleErr` 对未知错误（500）通过 `middleware.LogError` 打一条带 `request_id` 的 Error 日志，记录原始 `error`（如 MongoDB 报错细节）
+
+两条日志通过相同的 `request_id` 关联，一条看请求上下文，一条看错误根因。
+
+### 日志查看器（网页）
+
+控制台日志刷屏难看？项目内置一个类似 Swagger UI 的实时日志网页，把请求日志以表格形式可视化展示，支持实时刷新、级别筛选、关键词搜索、展开查看 body 详情。
+
+- 访问地址：`http://localhost:8080/admin/logs`（无需 token，仅开发排障用）
+- 数据来源：Logger 中间件记录的每条请求日志，同时推送到内存环形缓冲区（默认 500 条）并经 SSE 实时广播给网页
+
+功能：
+
+| 功能        | 说明                                                              |
+| ----------- | ----------------------------------------------------------------- |
+| 实时刷新    | SSE 推送，新请求自动出现在顶部，无需手动刷新                      |
+| 历史日志    | 打开页面即加载最近 500 条缓冲区日志                               |
+| 级别筛选    | 全部 / INFO / WARN / ERROR 一键切换                               |
+| 关键词搜索  | 按 `path` 或 `request_id` 过滤                                    |
+| 展开详情    | 点击任一行展开 `user_id` / `ip` / `ua` / `req_body` / `resp_body` |
+| 暂停 / 清空 | 暂停接收新日志便于查看，或清空当前页面                            |
+| 断线重连    | SSE 断开后 3 秒自动重连                                           |
+
+> body 内容同样受 `LOG_BODY` 模式控制：`full` 看完整、`masked` 脱敏敏感字段、`off` 只看长度。开发时建议 `LOG_BODY=full` 以便在网页中直接看到前端发来的完整请求体。
+
+相关代码：`internal/middleware/logviewer.go`（环形缓冲 + SSE）、`internal/middleware/logviewer_html.go`（内嵌页面）、路由注册在 `internal/router/router.go` 的 `/admin/logs` 与 `/admin/logs/stream`。
+
+> 安全提示：`/admin/logs` 当前为公开路由，仅用于本地开发。生产环境请通过反向代理屏蔽或加 IP 白名单。
+
+### 服务状态检查
+
+排查"改了代码没生效"或"前端连不上"时，先跑：
+
+```bash
+make status
+```
+
+输出示例（正常）：
+
+```
+🔍 服务状态检查...
+✅ air 运行中 (pid=56068)
+✅ :8080 端口监听中
+   vsb-server 56123 seeley  7u  IPv4 ... TCP *:8080 (LISTEN)
+---
+✅ /health 响应正常
+```
+
+异常时给出 ❌ 并提示原因（如"端口未监听：服务未启动或编译失败，检查 air 终端输出"）。常见问题：
+
+- **air 在跑但端口没监听** → 编译失败，看 air 终端红色错误；或端口被其他进程占用（如 VS Code 调试器 `__debug_bin*`），用 `lsof -i :8080` 查占用
+- **air 没在跑** → 用 `make dev` 启动
 
 ## Swagger 文档
 

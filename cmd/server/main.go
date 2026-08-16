@@ -36,8 +36,9 @@ func main() {
 	// 2. 初始化日志
 	logger.Init(cfg.LogLevel)
 	defer logger.Sync()
+	middleware.InitLogViewer(500)
 
-	log.Printf("config loaded: port=%s, db=%s", cfg.ServerPort, cfg.MongoDB)
+	log.Printf("config loaded: port=%s, db=%s, log_level=%s, log_body=%s", cfg.ServerPort, cfg.MongoDB, cfg.LogLevel, cfg.LogBody)
 
 	// 3. 连接 MongoDB
 	client, db, err := database.Connect(cfg.MongoURI, cfg.MongoDB)
@@ -69,7 +70,8 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
-		log.Printf("🚀 vsb-server listening on %s", addr)
+		log.Printf("🚀 vsb-server started | pid=%d | addr=%s | log_body=%s | time=%s",
+			os.Getpid(), addr, cfg.LogBody, time.Now().Format("2006-01-02 15:04:05"))
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("server error: %v", err)
 		}

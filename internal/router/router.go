@@ -22,13 +22,17 @@ func New(cfg *config.Config, db *mongo.Database, logger *zap.Logger) *mux.Router
 
 	r.Use(middleware.Recover(logger))
 	r.Use(middleware.MaxBodySize(1 << 20)) // 1MB
-	r.Use(middleware.Logger(logger))
+	r.Use(middleware.Logger(logger, cfg.LogBody))
 
 	// 健康检查
 	r.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	}).Methods("GET")
+
+	// 日志查看器（SSE 实时网页，开发排障用）
+	r.HandleFunc("/admin/logs", middleware.LogViewerPage).Methods("GET")
+	r.HandleFunc("/admin/logs/stream", middleware.LogViewerStream).Methods("GET")
 
 	d := &deps.Deps{
 		DB:        db,

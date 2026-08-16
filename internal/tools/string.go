@@ -40,8 +40,8 @@ func MaskString(s string, start, end int) string {
 	if n == 0 {
 		return s
 	}
-	if start < 0 {
-		start = 0
+	if start < 3 {
+		start = 3
 	}
 	if end < 0 {
 		end = 0
