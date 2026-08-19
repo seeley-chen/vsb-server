@@ -2,8 +2,7 @@ package i18n
 
 import "strings"
 
-// Locale 多语言文本类型
-// JSON/BSON 格式: {"zh-cn":"中文","en-us":"English"}
+// Locale 多语言文本，JSON 格式：{"zh-cn":"中文","en-us":"English"}
 type Locale map[string]string
 
 // 支持的语言代码

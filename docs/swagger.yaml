@@ -1,28 +1,192 @@
 basePath: /
 definitions:
-  github_com_Vanselyn_vsb-server_internal_model_permission.User:
+  category.CategoryRequest:
     properties:
-      account:
+      description:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 分类描述（多语言）
+      name:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 分类名称（多语言）
+      parentId:
+        description: 父分类 ID，为空表示顶级分类
+        type: string
+    required:
+    - name
+    type: object
+  category.CategoryResponse:
+    properties:
+      categoryId:
+        description: 分类 ID
         type: string
       createdAt:
+        description: 创建时间
         type: string
-      email:
+      description:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 分类描述（多语言）
+      name:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 分类名称（多语言）
+      parentId:
+        description: 父分类 ID，为空表示顶级分类
         type: string
-      phone:
-        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.StatusEnum'
+        description: 分类状态
       updatedAt:
-        type: string
-      userId:
-        type: string
-      username:
+        description: 更新时间
         type: string
     type: object
-  github_com_Vanselyn_vsb-server_pkg_response.PageData:
+  category.CategoryUpdateRequest:
+    properties:
+      categoryId:
+        description: 分类 ID，以路径参数为准
+        type: string
+      description:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 分类描述（多语言）
+      name:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 分类名称（多语言）
+      parentId:
+        description: 父分类 ID
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.StatusEnum'
+        description: 分类状态
+    type: object
+  department.DepartmentRequest:
+    properties:
+      description:
+        description: 部门描述
+        type: string
+      name:
+        description: 部门名称
+        type: string
+    required:
+    - name
+    type: object
+  department.DepartmentResponse:
+    properties:
+      createdAt:
+        description: 创建时间
+        type: string
+      departmentId:
+        description: 部门ID
+        type: string
+      description:
+        description: 部门描述
+        type: string
+      name:
+        description: 部门名称
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+    required:
+    - createdAt
+    - departmentId
+    - name
+    - updatedAt
+    type: object
+  department.DepartmentUpdateRequest:
+    properties:
+      description:
+        description: 部门描述
+        type: string
+      name:
+        description: 部门名称
+        type: string
+    required:
+    - name
+    type: object
+  i18n.Locale:
+    additionalProperties:
+      type: string
+    type: object
+  login.LoginRequest:
+    properties:
+      account:
+        description: 登录账号
+        type: string
+      password:
+        description: 登录密码
+        type: string
+    required:
+    - account
+    - password
+    type: object
+  login.LoginResponse:
+    properties:
+      token:
+        description: 'JWT Token，后续请求放在 Authorization: Bearer {token}'
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/user.UserResponse'
+        description: 当前登录用户信息
+    type: object
+  models.StatusEnum:
+    enum:
+    - active
+    - unlisted
+    - listed
+    - inactive
+    - deleted
+    - expired
+    - pending
+    - approved
+    - disabled
+    - enabled
+    type: string
+    x-enum-comments:
+      StatusActive: 活跃中
+      StatusApproved: 审核通过
+      StatusDeleted: 已删除
+      StatusDisabled: 禁用
+      StatusEnabled: 启用
+      StatusExpired: 已过期
+      StatusInactive: 已下架
+      StatusListed: 已上架
+      StatusPending: 待审核
+      StatusUnlisted: 未上架
+    x-enum-descriptions:
+    - 活跃中
+    - 未上架
+    - 已上架
+    - 已下架
+    - 已删除
+    - 已过期
+    - 待审核
+    - 审核通过
+    - 禁用
+    - 启用
+    x-enum-varnames:
+    - StatusActive
+    - StatusUnlisted
+    - StatusListed
+    - StatusInactive
+    - StatusDeleted
+    - StatusExpired
+    - StatusPending
+    - StatusApproved
+    - StatusDisabled
+    - StatusEnabled
+  response.PageData:
     properties:
       list:
-        description: 列表
+        description: 当前页数据列表
       pageIndex:
-        description: 页码
+        description: 当前页码，从 1 开始
         type: integer
       pageSize:
         description: 每页条数
@@ -31,7 +195,7 @@ definitions:
         description: 总条数
         type: integer
     type: object
-  github_com_Vanselyn_vsb-server_pkg_response.Response:
+  response.Response:
     properties:
       code:
         description: 状态码
@@ -42,44 +206,236 @@ definitions:
         description: 消息
         type: string
     type: object
-  internal_handler_permission_user.EditRequest:
+  role.RoleRequest:
+    properties:
+      description:
+        description: 角色描述
+        type: string
+      name:
+        description: 角色名称
+        type: string
+      permissions:
+        description: 权限树
+        items:
+          $ref: '#/definitions/role.RoleTree'
+        type: array
+    required:
+    - name
+    type: object
+  role.RoleResponse:
+    properties:
+      createdAt:
+        description: 创建时间
+        type: string
+      description:
+        description: 角色描述
+        type: string
+      name:
+        description: 角色名称
+        type: string
+      permissions:
+        description: 权限树
+        items:
+          $ref: '#/definitions/role.RoleTree'
+        type: array
+      roleId:
+        description: 角色ID
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+    required:
+    - createdAt
+    - name
+    - roleId
+    - updatedAt
+    type: object
+  role.RoleTree:
+    properties:
+      children:
+        description: 子权限节点
+        items:
+          $ref: '#/definitions/role.RoleTreeItem'
+        type: array
+      path:
+        description: 权限路径
+        type: string
+      type:
+        description: 权限类型：read 或 write
+        enum:
+        - read
+        - write
+        type: string
+    required:
+    - path
+    - type
+    type: object
+  role.RoleTreeItem:
+    properties:
+      path:
+        description: 权限路径
+        type: string
+      type:
+        description: 权限类型：read 或 write
+        enum:
+        - read
+        - write
+        type: string
+    required:
+    - path
+    - type
+    type: object
+  role.RoleUpdateRequest:
+    properties:
+      description:
+        description: 角色描述
+        type: string
+      name:
+        description: 角色名称
+        type: string
+      permissions:
+        description: 权限树，不传表示不修改
+        items:
+          $ref: '#/definitions/role.RoleTree'
+        type: array
+    required:
+    - name
+    - permissions
+    type: object
+  user.UserRequest:
     properties:
       account:
+        description: 账号
+        type: string
+      createdAt:
+        description: 创建时间，由服务端生成
+        type: string
+      departmentId:
+        description: 部门ID
         type: string
       email:
+        description: 邮箱
+        type: string
+      identity:
+        description: 身份标识
+        enum:
+        - admin
+        - user
         type: string
       password:
+        description: 密码
         type: string
       phone:
         type: string
+      roleId:
+        description: 角色ID
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.StatusEnum'
+        description: 用户状态
+        enum:
+        - enabled
+        - disabled
+      updatedAt:
+        description: 更新时间，由服务端生成
+        type: string
       username:
+        description: 用户名
         type: string
+    required:
+    - account
+    - departmentId
+    - identity
+    - password
+    - roleId
+    - username
     type: object
-  internal_handler_permission_user.LoginRequest:
+  user.UserResponse:
     properties:
       account:
+        description: 账号
         type: string
-      password:
+      createdAt:
+        description: 创建时间
         type: string
-    type: object
-  internal_handler_permission_user.LoginResponse:
-    properties:
-      token:
-        type: string
-      user: {}
-    type: object
-  internal_handler_permission_user.RegisterRequest:
-    properties:
-      account:
+      departmentId:
+        description: 部门ID
         type: string
       email:
+        description: 邮箱
         type: string
-      password:
+      identity:
+        description: 身份标识
         type: string
       phone:
+        description: 手机号
+        type: string
+      roleId:
+        description: 角色ID
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.StatusEnum'
+        description: 用户状态
+        enum:
+        - enabled
+        - disabled
+      updatedAt:
+        description: 更新时间
+        type: string
+      userId:
+        description: 用户ID
         type: string
       username:
+        description: 用户名
         type: string
+    required:
+    - account
+    - createdAt
+    - departmentId
+    - identity
+    - roleId
+    - status
+    - updatedAt
+    - userId
+    - username
+    type: object
+  user.UserUpdateRequest:
+    properties:
+      departmentId:
+        description: 部门ID
+        type: string
+      email:
+        description: 邮箱
+        type: string
+      identity:
+        description: 身份标识
+        type: string
+      password:
+        description: 登录密码
+        type: string
+      phone:
+        description: 手机号
+        type: string
+      roleId:
+        description: 角色ID
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.StatusEnum'
+        description: 用户状态
+        enum:
+        - enabled
+        - disabled
+      username:
+        description: 用户名
+        type: string
+    required:
+    - departmentId
+    - identity
+    - roleId
+    - username
     type: object
 host: localhost:8080
 info:
@@ -88,18 +444,53 @@ info:
   title: VSB Server API
   version: "1.0"
 paths:
-  /api/permission/user/create:
+  /api/login:
     post:
       consumes:
       - application/json
-      description: 创建新用户，需要 Bearer Token
+      description: 使用账号和密码登录，返回 JWT token 和用户信息
       parameters:
-      - description: 注册信息
+      - description: 登录信息
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_handler_permission_user.RegisterRequest'
+          $ref: '#/definitions/login.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/login.LoginResponse'
+              type: object
+        "400":
+          description: 参数错误或账号密码错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 用户登录
+      tags:
+      - 登录
+  /api/permission/department/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新部门，需要 Bearer Token
+      parameters:
+      - description: 部门信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/department.DepartmentRequest'
       produces:
       - application/json
       responses:
@@ -107,35 +498,35 @@ paths:
           description: 创建成功
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Vanselyn_vsb-server_internal_model_permission.User'
+                  $ref: '#/definitions/department.DepartmentResponse'
               type: object
         "400":
-          description: 参数错误或账号已存在
+          description: 参数错误或部门已存在
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: 创建用户
+      summary: 创建部门
       tags:
-      - 用户管理
-  /api/permission/user/delete/{userId}:
+      - 部门管理
+  /api/permission/department/delete/{id}:
     delete:
-      description: 根据 userId 删除用户，需要 Bearer Token
+      description: 根据部门 ID 删除部门，需要 Bearer Token
       parameters:
-      - description: 用户 ID
+      - description: 部门 ID
         in: path
-        name: userId
+        name: id
         required: true
         type: string
       produces:
@@ -144,37 +535,78 @@ paths:
         "200":
           description: 删除成功
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "404":
-          description: 用户不存在
+          description: 部门不存在
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: 删除用户
+      summary: 删除部门
       tags:
-      - 用户管理
-  /api/permission/user/edit/{userId}:
+      - 部门管理
+  /api/permission/department/list:
+    get:
+      description: 分页获取部门列表，支持按名称模糊搜索，需要 Bearer Token
+      parameters:
+      - description: 页码，默认 1
+        in: query
+        name: pageIndex
+        type: integer
+      - description: 每页数量，默认 20，上限 100
+        in: query
+        name: pageSize
+        type: integer
+      - description: 部门名称（模糊搜索）
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 部门列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageData'
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取部门列表
+      tags:
+      - 部门管理
+  /api/permission/department/update/{id}:
     put:
       consumes:
       - application/json
-      description: 根据 userId 更新用户信息，需要 Bearer Token
+      description: 根据部门 ID 更新部门信息，空字段表示不修改，需要 Bearer Token
       parameters:
-      - description: 用户 ID
+      - description: 部门 ID
         in: path
-        name: userId
+        name: id
         required: true
         type: string
       - description: 更新信息
@@ -182,46 +614,161 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_handler_permission_user.EditRequest'
+          $ref: '#/definitions/department.DepartmentUpdateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: 更新成功
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/department.DepartmentResponse'
+              type: object
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "404":
-          description: 用户不存在
+          description: 部门不存在
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
-      summary: 编辑用户
+      summary: 更新部门
       tags:
-      - 用户管理
-  /api/permission/user/list:
+      - 部门管理
+  /api/permission/privileges:
     get:
+      description: 根据当前登录用户的角色，返回合并后的权限树，需要 Bearer Token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 权限列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/role.RoleTree'
+                  type: array
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取当前用户权限
+      tags:
+      - 角色管理
+  /api/permission/role/create:
+    post:
       consumes:
       - application/json
-      description: 分页获取用户列表，需要 Bearer Token
+      description: 创建新角色，需要 Bearer Token
       parameters:
-      - description: 页码，默认1
+      - description: 角色信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/role.RoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/role.RoleResponse'
+              type: object
+        "400":
+          description: 参数错误或角色已存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建角色
+      tags:
+      - 角色管理
+  /api/permission/role/delete/{id}:
+    delete:
+      description: 根据角色 ID 删除角色，需要 Bearer Token
+      parameters:
+      - description: 角色 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 角色不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除角色
+      tags:
+      - 角色管理
+  /api/permission/role/list:
+    get:
+      description: 分页获取角色列表，需要 Bearer Token
+      parameters:
+      - description: 页码，默认 1
         in: query
         name: pageIndex
         type: integer
-      - description: 每页数量，默认20
+      - description: 每页数量，默认 20，上限 100
         in: query
         name: pageSize
         type: integer
@@ -229,66 +776,416 @@ paths:
       - application/json
       responses:
         "200":
-          description: 用户列表
+          description: 角色列表
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.PageData'
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/role.RoleResponse'
+                        type: array
+                    type: object
               type: object
         "401":
           description: 未授权
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取角色列表
+      tags:
+      - 角色管理
+  /api/permission/role/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 根据角色 ID 更新角色信息，空字段表示不修改，需要 Bearer Token
+      parameters:
+      - description: 角色 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/role.RoleUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/role.RoleResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 角色不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新角色
+      tags:
+      - 角色管理
+  /api/permission/user/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户，需要 Bearer Token
+      parameters:
+      - description: 用户信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.UserResponse'
+              type: object
+        "400":
+          description: 参数错误或账号已存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建用户
+      tags:
+      - 用户管理
+  /api/permission/user/delete/{id}:
+    delete:
+      description: 根据用户 ID 删除用户，需要 Bearer Token
+      parameters:
+      - description: 用户 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除用户
+      tags:
+      - 用户管理
+  /api/permission/user/list:
+    get:
+      description: 分页获取用户列表，支持 username/account 模糊搜索、email 精确匹配，需要 Bearer Token
+      parameters:
+      - description: 页码，默认 1
+        in: query
+        name: pageIndex
+        type: integer
+      - description: 每页数量，默认 20，上限 100
+        in: query
+        name: pageSize
+        type: integer
+      - description: 用户名（模糊搜索）
+        in: query
+        name: username
+        type: string
+      - description: 账号（模糊搜索）
+        in: query
+        name: account
+        type: string
+      - description: 邮箱（精确匹配）
+        in: query
+        name: email
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageData'
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
       security:
       - ApiKeyAuth: []
       summary: 获取用户列表
       tags:
       - 用户管理
-  /api/permission/user/login:
-    post:
+  /api/permission/user/update/{id}:
+    put:
       consumes:
       - application/json
-      description: 使用用户名和密码登录，返回 JWT token 和用户信息
+      description: 根据用户 ID 更新用户信息，空字段表示不修改，需要 Bearer Token
       parameters:
-      - description: 登录信息
+      - description: 用户 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新信息
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/internal_handler_permission_user.LoginRequest'
+          $ref: '#/definitions/user.UserUpdateRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: 登录成功
+          description: 更新成功
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/internal_handler_permission_user.LoginResponse'
+                  $ref: '#/definitions/user.UserResponse'
               type: object
         "400":
           description: 参数错误
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
         "401":
-          description: 用户名或密码错误
+          description: 未授权
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/response.Response'
         "500":
           description: 服务器内部错误
           schema:
-            $ref: '#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response'
-      summary: 用户登录
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新用户
       tags:
       - 用户管理
+  /api/product/category/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新商品分类，需要 Bearer Token
+      parameters:
+      - description: 分类信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/category.CategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/category.CategoryResponse'
+              type: object
+        "400":
+          description: 参数错误或分类已存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建商品分类
+      tags:
+      - 商品分类
+  /api/product/category/delete/{id}:
+    delete:
+      description: 根据分类 ID 删除商品分类，需要 Bearer Token
+      parameters:
+      - description: 分类 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除商品分类
+      tags:
+      - 商品分类
+  /api/product/category/list:
+    get:
+      description: 获取全部商品分类，需要 Bearer Token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分类列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageData'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/category.CategoryResponse'
+                        type: array
+                    type: object
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取商品分类列表
+      tags:
+      - 商品分类
+  /api/product/category/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 根据分类 ID 更新商品分类，空字段表示不修改，需要 Bearer Token
+      parameters:
+      - description: 分类 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/category.CategoryUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/category.CategoryResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新商品分类
+      tags:
+      - 商品分类
 securityDefinitions:
   ApiKeyAuth:
     description: Bearer JWT token，格式：Bearer {token}

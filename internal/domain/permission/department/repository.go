@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Vanselyn/vsb-server/pkg/idgen"
+	"github.com/Vanselyn/vsb-server/pkg/mongoFilter"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -114,13 +115,10 @@ func (r *DepartmentRepo) FindByName(ctx context.Context, name string) (*Departme
 
 // 更新部门
 func (r *DepartmentRepo) UpdateDepartment(ctx context.Context, data *DepartmentUpdateRequest) (*DepartmentResponse, error) {
-	update := bson.M{"updated_at": time.Now()}
-	if data.Name != "" {
-		update["name"] = data.Name
-	}
-	if data.Description != "" {
-		update["description"] = data.Description
-	}
+	update := mongoFilter.BuildUpdate([]mongoFilter.UpdateRule{
+		{Value: data.Name, DBKey: "name"},
+		{Value: data.Description, DBKey: "description"},
+	})
 
 	result, err := r.collection.UpdateOne(
 		ctx,

@@ -9,9 +9,8 @@ import (
 )
 
 var (
-	ErrDepartmentExists    = errors.New("department already exists")
-	ErrDepartmentNotFound  = errors.New("department not found")
-	ErrDepartmentNameEmpty = errors.New("department name is empty")
+	ErrDepartmentExists   = errors.New("department already exists")
+	ErrDepartmentNotFound = errors.New("department not found")
 )
 
 type DepartmentService struct {
@@ -24,10 +23,8 @@ func NewDepartmentService(repo *DepartmentRepo) *DepartmentService {
 
 /** 创建部门 */
 func (s *DepartmentService) CreateDepartment(ctx context.Context, data *DepartmentRequest) (*DepartmentResponse, error) {
-	data.Name = tools.TrimSpace(data.Name)
-	data.Description = tools.TrimSpace(data.Description)
-	if data.Name == "" {
-		return nil, ErrDepartmentNameEmpty
+	if err := tools.ValidateStruct(data); err != nil {
+		return nil, err
 	}
 
 	existing, err := s.repo.FindByName(ctx, data.Name)
@@ -75,13 +72,9 @@ func (s *DepartmentService) UpdateDepartment(ctx context.Context, departmentId s
 		return nil, ErrDepartmentNotFound
 	}
 
-	if data.Name != "" {
-		data.Name = tools.TrimSpace(data.Name)
-		if data.Name == "" {
-			return nil, ErrDepartmentNameEmpty
-		}
+	if err := tools.ValidateStruct(data); err != nil {
+		return nil, err
 	}
-	data.Description = tools.TrimSpace(data.Description)
 	data.DepartmentId = departmentId
 
 	if data.Name != "" {

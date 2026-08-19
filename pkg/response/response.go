@@ -2,7 +2,10 @@ package response
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+
+	"github.com/Vanselyn/vsb-server/internal/tools"
 )
 
 // Response 通用响应结构
@@ -44,6 +47,16 @@ func Success(w http.ResponseWriter, data interface{}) {
 	})
 }
 
+// FailIfValidation 若为参数校验错误则写入 400 并返回 true。
+func FailIfValidation(w http.ResponseWriter, err error) bool {
+	var ve *tools.ValidationError
+	if errors.As(err, &ve) {
+		Fail(w, http.StatusBadRequest, CodeBadRequest, ve.Error())
+		return true
+	}
+	return false
+}
+
 func Fail(w http.ResponseWriter, httpStatus int, code int, msg ...string) {
 	message := codeMsgMap[code] // 获取状态码对应的消息
 	if len(msg) > 0 && msg[0] != "" {
@@ -55,9 +68,10 @@ func Fail(w http.ResponseWriter, httpStatus int, code int, msg ...string) {
 	})
 }
 
+// PageData 分页列表 data
 type PageData struct {
-	List      interface{} `json:"list"`      // 列表
+	List      interface{} `json:"list"`      // 当前页数据列表
 	Total     int64       `json:"total"`     // 总条数
-	PageIndex int         `json:"pageIndex"` // 页码
+	PageIndex int         `json:"pageIndex"` // 当前页码，从 1 开始
 	PageSize  int         `json:"pageSize"`  // 每页条数
 }

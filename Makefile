@@ -1,4 +1,4 @@
-.PHONY: setup-hooks check fmt vet build tidy run dev install-air status rename-module
+.PHONY: setup-hooks check fmt vet build tidy run dev install-air status swagger rename-module
 
 # 一键配置 git hooks（clone 项目后首先运行）
 setup-hooks:
@@ -35,6 +35,11 @@ build:
 # 整理依赖
 tidy:
 	@go mod tidy
+
+# 生成 Swagger 文档（handler 在 internal/ 下，必须加 --parseInternal）
+swagger:
+	@swag init -g cmd/server/main.go -o docs --parseInternal
+	@echo "✅ Swagger 文档已生成：docs/"
 
 # 启动服务
 run:

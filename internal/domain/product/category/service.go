@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/Vanselyn/vsb-server/internal/tools"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -24,8 +25,9 @@ func NewCategoryService(repo *CategoryRepo) *CategoryService {
 // 直接靠唯一索引判重（InsertOne 的 duplicate key 错误），不使用前置 FindByName 查重：
 // 避免查重与插入之间的竞态（并发请求可能同时通过查重），且唯一索引本身已保证唯一性。
 func (s *CategoryService) CreateCategory(ctx context.Context, data *CategoryRequest) (*CategoryResponse, error) {
-	data.Name = data.Name.TrimSpace()
-	data.Description = data.Description.TrimSpace()
+	if err := tools.ValidateStruct(data); err != nil {
+		return nil, err
+	}
 
 	category, err := s.repo.CreateCategory(ctx, data)
 	if err != nil {
@@ -49,7 +51,9 @@ func (s *CategoryService) UpdateCategory(ctx context.Context, categoryId string,
 		return nil, ErrCategoryNotFound
 	}
 
-	data.Description = data.Description.TrimSpace()
+	if err := tools.ValidateStruct(data); err != nil {
+		return nil, err
+	}
 	data.CategoryId = categoryId
 
 	if !data.Name.IsEmpty() {

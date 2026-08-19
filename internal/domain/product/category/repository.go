@@ -7,6 +7,7 @@ import (
 	"github.com/Vanselyn/vsb-server/internal/models"
 	"github.com/Vanselyn/vsb-server/pkg/i18n"
 	"github.com/Vanselyn/vsb-server/pkg/idgen"
+	"github.com/Vanselyn/vsb-server/pkg/mongoFilter"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -110,19 +111,12 @@ func (r *CategoryRepo) FindByName(ctx context.Context, name i18n.Locale) (*Categ
 
 // 更新
 func (r *CategoryRepo) UpdateCategory(ctx context.Context, data *CategoryUpdateRequest) (*CategoryResponse, error) {
-	update := bson.M{"updated_at": time.Now()}
-	if !data.Name.IsEmpty() {
-		update["name"] = data.Name
-	}
-	if !data.Description.IsEmpty() {
-		update["description"] = data.Description
-	}
-	if data.ParentId != "" {
-		update["parent_id"] = data.ParentId
-	}
-	if data.Status != "" {
-		update["status"] = data.Status
-	}
+	update := mongoFilter.BuildUpdate([]mongoFilter.UpdateRule{
+		{Value: data.Name, DBKey: "name"},
+		{Value: data.Description, DBKey: "description"},
+		{Value: data.ParentId, DBKey: "parent_id"},
+		{Value: data.Status, DBKey: "status"},
+	})
 
 	result, err := r.collection.UpdateOne(
 		ctx,

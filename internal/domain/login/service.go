@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Vanselyn/vsb-server/internal/domain/permission/user"
+	"github.com/Vanselyn/vsb-server/internal/tools"
 	"github.com/Vanselyn/vsb-server/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -31,12 +32,8 @@ func NewLoginService(userRepo *user.UserRepo, jwtSecret string, jwtExpire time.D
 
 // Login 校验账号密码并签发 JWT token
 func (s *LoginService) Login(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {
-	if req.Account == "" {
-		return nil, ErrInvalidAccount
-	}
-
-	if req.Password == "" {
-		return nil, ErrInvalidPassword
+	if err := tools.ValidateStruct(req); err != nil {
+		return nil, err
 	}
 
 	u, err := s.userRepo.GetUserByAccount(ctx, req.Account)

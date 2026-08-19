@@ -9,13 +9,8 @@ import (
 )
 
 var (
-	ErrUserNotFound        = errors.New("user not found")
-	ErrUserAlreadyExists   = errors.New("user already exists")
-	ErrInvalidPassword     = errors.New("invalid password")
-	ErrUserNameEmpty       = errors.New("user name is empty")
-	ErrUserAccountEmpty    = errors.New("user account is empty")
-	ErrUserRoleEmpty       = errors.New("user role is empty")
-	ErrUserDepartmentEmpty = errors.New("user department is empty")
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUserAlreadyExists = errors.New("user already exists")
 )
 
 type UserService struct {
@@ -28,26 +23,8 @@ func NewUserService(repo *UserRepo) *UserService {
 
 // 创建用户
 func (s *UserService) CreateUser(ctx context.Context, req *UserRequest) (*UserResponse, error) {
-	req.Username = tools.TrimSpace(req.Username)
-
-	if req.Username == "" {
-		return nil, ErrUserNameEmpty
-	}
-
-	if req.Account == "" {
-		return nil, ErrUserAccountEmpty
-	}
-
-	if req.Password == "" {
-		return nil, ErrInvalidPassword
-	}
-
-	if req.RoleId == "" {
-		return nil, ErrUserRoleEmpty
-	}
-
-	if req.DepartmentId == "" {
-		return nil, ErrUserDepartmentEmpty
+	if err := tools.ValidateStruct(req); err != nil {
+		return nil, err
 	}
 
 	existing, err := s.repo.GetUserByAccount(ctx, req.Account)
@@ -85,8 +62,8 @@ func (s *UserService) GetUserById(ctx context.Context, userId string) (*UserResp
 }
 
 // 获取用户列表（username/account 模糊搜索，email 精确匹配，均可选）
-func (s *UserService) GetUserList(ctx context.Context, pageIndex, pageSize int, username, account, email string) ([]*UserResponse, int64, error) {
-	return s.repo.GetUserList(ctx, pageIndex, pageSize, username, account, email)
+func (s *UserService) GetUserList(ctx context.Context, pageIndex, pageSize int, params UserQueryParams) ([]*UserResponse, int64, error) {
+	return s.repo.GetUserList(ctx, pageIndex, pageSize, params)
 }
 
 // 更新用户
@@ -94,28 +71,19 @@ func (s *UserService) UpdateUser(ctx context.Context, userId string, req *UserUp
 	if userId == "" {
 		return nil, ErrUserNotFound
 	}
-	if req.Username != "" {
-		req.Username = tools.TrimSpace(req.Username)
-		if req.Username == "" {
-			return nil, ErrUserNameEmpty
-		}
-	}
-	if req.Account != "" {
-		req.Account = tools.TrimSpace(req.Account)
-		if req.Account == "" {
-			return nil, ErrUserAccountEmpty
-		}
+	if err := tools.ValidateStruct(req); err != nil {
+		return nil, err
 	}
 
 	req.UserId = userId
 
-	if req.Account != "" {
-		existing, err := s.repo.GetUserByAccount(ctx, req.Account)
+	if req.UserId != "" {
+		existing, err := s.repo.GetUserById(ctx, req.UserId)
 		if err != nil {
 			return nil, err
 		}
 		if existing != nil && existing.UserId != userId {
-			return nil, ErrUserAlreadyExists
+			return nil, ErrUserNotFound
 		}
 	}
 

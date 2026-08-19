@@ -15,6 +15,687 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/login": {
+            "post": {
+                "description": "使用账号和密码登录，返回 JWT token 和用户信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "登录"
+                ],
+                "summary": "用户登录",
+                "parameters": [
+                    {
+                        "description": "登录信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/login.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "登录成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/login.LoginResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或账号密码错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/department/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建新部门，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "创建部门",
+                "parameters": [
+                    {
+                        "description": "部门信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/department.DepartmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/department.DepartmentResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或部门已存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/department/delete/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据部门 ID 删除部门，需要 Bearer Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "删除部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "部门不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/department/list": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "分页获取部门列表，支持按名称模糊搜索，需要 Bearer Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "获取部门列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码，默认 1",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认 20，上限 100",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "部门名称（模糊搜索）",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "部门列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.PageData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/department/update/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据部门 ID 更新部门信息，空字段表示不修改，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "部门管理"
+                ],
+                "summary": "更新部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/department.DepartmentUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/department.DepartmentResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "部门不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/privileges": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据当前登录用户的角色，返回合并后的权限树，需要 Bearer Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "获取当前用户权限",
+                "responses": {
+                    "200": {
+                        "description": "权限列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/role.RoleTree"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/role/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建新角色，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "创建角色",
+                "parameters": [
+                    {
+                        "description": "角色信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/role.RoleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/role.RoleResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或角色已存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/role/delete/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据角色 ID 删除角色，需要 Bearer Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "删除角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "角色不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/role/list": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "分页获取角色列表，需要 Bearer Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "获取角色列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码，默认 1",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认 20，上限 100",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "角色列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageData"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/role.RoleResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/permission/role/update/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据角色 ID 更新角色信息，空字段表示不修改，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "角色管理"
+                ],
+                "summary": "更新角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/role.RoleUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/role.RoleResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "角色不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/permission/user/create": {
             "post": {
                 "security": [
@@ -35,12 +716,12 @@ const docTemplate = `{
                 "summary": "创建用户",
                 "parameters": [
                     {
-                        "description": "注册信息",
+                        "description": "用户信息",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_permission_user.RegisterRequest"
+                            "$ref": "#/definitions/user.UserRequest"
                         }
                     }
                 ],
@@ -50,13 +731,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                                    "$ref": "#/definitions/response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_internal_model_permission.User"
+                                            "$ref": "#/definitions/user.UserResponse"
                                         }
                                     }
                                 }
@@ -66,32 +747,32 @@ const docTemplate = `{
                     "400": {
                         "description": "参数错误或账号已存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
             }
         },
-        "/api/permission/user/delete/{userId}": {
+        "/api/permission/user/delete/{id}": {
             "delete": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "根据 userId 删除用户，需要 Bearer Token",
+                "description": "根据用户 ID 删除用户，需要 Bearer Token",
                 "produces": [
                     "application/json"
                 ],
@@ -103,7 +784,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "用户 ID",
-                        "name": "userId",
+                        "name": "id",
                         "in": "path",
                         "required": true
                     }
@@ -112,101 +793,31 @@ const docTemplate = `{
                     "200": {
                         "description": "删除成功",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "404": {
                         "description": "用户不存在",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/permission/user/edit/{userId}": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "根据 userId 更新用户信息，需要 Bearer Token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户管理"
-                ],
-                "summary": "编辑用户",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "用户 ID",
-                        "name": "userId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "更新信息",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/internal_handler_permission_user.EditRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "更新成功",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "参数错误",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
-                        }
-                    },
-                    "401": {
-                        "description": "未授权",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
-                        }
-                    },
-                    "404": {
-                        "description": "用户不存在",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器内部错误",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -219,10 +830,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "分页获取用户列表，需要 Bearer Token",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "分页获取用户列表，支持 username/account 模糊搜索、email 精确匹配，需要 Bearer Token",
                 "produces": [
                     "application/json"
                 ],
@@ -233,14 +841,32 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "页码，默认1",
+                        "description": "页码，默认 1",
                         "name": "pageIndex",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "每页数量，默认20",
+                        "description": "每页数量，默认 20，上限 100",
                         "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名（模糊搜索）",
+                        "name": "username",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "账号（模糊搜索）",
+                        "name": "account",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "邮箱（精确匹配）",
+                        "name": "email",
                         "in": "query"
                     }
                 ],
@@ -250,13 +876,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                                    "$ref": "#/definitions/response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.PageData"
+                                            "$ref": "#/definitions/response.PageData"
                                         }
                                     }
                                 }
@@ -266,21 +892,26 @@ const docTemplate = `{
                     "401": {
                         "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
             }
         },
-        "/api/permission/user/login": {
-            "post": {
-                "description": "使用用户名和密码登录，返回 JWT token 和用户信息",
+        "/api/permission/user/update/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据用户 ID 更新用户信息，空字段表示不修改，需要 Bearer Token",
                 "consumes": [
                     "application/json"
                 ],
@@ -290,31 +921,38 @@ const docTemplate = `{
                 "tags": [
                     "用户管理"
                 ],
-                "summary": "用户登录",
+                "summary": "更新用户",
                 "parameters": [
                     {
-                        "description": "登录信息",
+                        "type": "string",
+                        "description": "用户 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新信息",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_permission_user.LoginRequest"
+                            "$ref": "#/definitions/user.UserUpdateRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "登录成功",
+                        "description": "更新成功",
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                                    "$ref": "#/definitions/response.Response"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/internal_handler_permission_user.LoginResponse"
+                                            "$ref": "#/definitions/user.UserResponse"
                                         }
                                     }
                                 }
@@ -324,19 +962,286 @@ const docTemplate = `{
                     "400": {
                         "description": "参数错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "401": {
-                        "description": "用户名或密码错误",
+                        "description": "未授权",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "用户不存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     },
                     "500": {
                         "description": "服务器内部错误",
                         "schema": {
-                            "$ref": "#/definitions/github_com_Vanselyn_vsb-server_pkg_response.Response"
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/product/category/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建新商品分类，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "创建商品分类",
+                "parameters": [
+                    {
+                        "description": "分类信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/category.CategoryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/category.CategoryResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或分类已存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/product/category/delete/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据分类 ID 删除商品分类，需要 Bearer Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "删除商品分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分类 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/product/category/list": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取全部商品分类，需要 Bearer Token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "获取商品分类列表",
+                "responses": {
+                    "200": {
+                        "description": "分类列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageData"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/category.CategoryResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/product/category/update/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据分类 ID 更新商品分类，空字段表示不修改，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品分类"
+                ],
+                "summary": "更新商品分类",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分类 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/category.CategoryUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/category.CategoryResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
                         }
                     }
                 }
@@ -344,40 +1249,278 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_Vanselyn_vsb-server_internal_model_permission.User": {
+        "category.CategoryRequest": {
             "type": "object",
+            "required": [
+                "name"
+            ],
             "properties": {
-                "account": {
-                    "type": "string"
+                "description": {
+                    "description": "分类描述（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
                 },
-                "createdAt": {
-                    "type": "string"
+                "name": {
+                    "description": "分类名称（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
                 },
-                "email": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
-                },
-                "username": {
+                "parentId": {
+                    "description": "父分类 ID，为空表示顶级分类",
                     "type": "string"
                 }
             }
         },
-        "github_com_Vanselyn_vsb-server_pkg_response.PageData": {
+        "category.CategoryResponse": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "description": "分类 ID",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "分类描述（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "分类名称（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "parentId": {
+                    "description": "父分类 ID，为空表示顶级分类",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "分类状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StatusEnum"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "category.CategoryUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "description": "分类 ID，以路径参数为准",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "分类描述（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "name": {
+                    "description": "分类名称（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "parentId": {
+                    "description": "父分类 ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "分类状态",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StatusEnum"
+                        }
+                    ]
+                }
+            }
+        },
+        "department.DepartmentRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "description": "部门描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "部门名称",
+                    "type": "string"
+                }
+            }
+        },
+        "department.DepartmentResponse": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "departmentId",
+                "name",
+                "updatedAt"
+            ],
+            "properties": {
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "departmentId": {
+                    "description": "部门ID",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "部门描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "部门名称",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "department.DepartmentUpdateRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "description": "部门描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "部门名称",
+                    "type": "string"
+                }
+            }
+        },
+        "i18n.Locale": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "login.LoginRequest": {
+            "type": "object",
+            "required": [
+                "account",
+                "password"
+            ],
+            "properties": {
+                "account": {
+                    "description": "登录账号",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "登录密码",
+                    "type": "string"
+                }
+            }
+        },
+        "login.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "description": "JWT Token，后续请求放在 Authorization: Bearer {token}",
+                    "type": "string"
+                },
+                "user": {
+                    "description": "当前登录用户信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/user.UserResponse"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.StatusEnum": {
+            "type": "string",
+            "enum": [
+                "active",
+                "unlisted",
+                "listed",
+                "inactive",
+                "deleted",
+                "expired",
+                "pending",
+                "approved",
+                "disabled",
+                "enabled"
+            ],
+            "x-enum-comments": {
+                "StatusActive": "活跃中",
+                "StatusApproved": "审核通过",
+                "StatusDeleted": "已删除",
+                "StatusDisabled": "禁用",
+                "StatusEnabled": "启用",
+                "StatusExpired": "已过期",
+                "StatusInactive": "已下架",
+                "StatusListed": "已上架",
+                "StatusPending": "待审核",
+                "StatusUnlisted": "未上架"
+            },
+            "x-enum-descriptions": [
+                "活跃中",
+                "未上架",
+                "已上架",
+                "已下架",
+                "已删除",
+                "已过期",
+                "待审核",
+                "审核通过",
+                "禁用",
+                "启用"
+            ],
+            "x-enum-varnames": [
+                "StatusActive",
+                "StatusUnlisted",
+                "StatusListed",
+                "StatusInactive",
+                "StatusDeleted",
+                "StatusExpired",
+                "StatusPending",
+                "StatusApproved",
+                "StatusDisabled",
+                "StatusEnabled"
+            ]
+        },
+        "response.PageData": {
             "type": "object",
             "properties": {
                 "list": {
-                    "description": "列表"
+                    "description": "当前页数据列表"
                 },
                 "pageIndex": {
-                    "description": "页码",
+                    "description": "当前页码，从 1 开始",
                     "type": "integer"
                 },
                 "pageSize": {
@@ -390,7 +1533,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_Vanselyn_vsb-server_pkg_response.Response": {
+        "response.Response": {
             "type": "object",
             "properties": {
                 "code": {
@@ -406,62 +1549,323 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_handler_permission_user.EditRequest": {
+        "role.RoleRequest": {
             "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "description": "角色描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "角色名称",
+                    "type": "string"
+                },
+                "permissions": {
+                    "description": "权限树",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/role.RoleTree"
+                    }
+                }
+            }
+        },
+        "role.RoleResponse": {
+            "type": "object",
+            "required": [
+                "createdAt",
+                "name",
+                "roleId",
+                "updatedAt"
+            ],
+            "properties": {
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "角色描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "角色名称",
+                    "type": "string"
+                },
+                "permissions": {
+                    "description": "权限树",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/role.RoleTree"
+                    }
+                },
+                "roleId": {
+                    "description": "角色ID",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "role.RoleTree": {
+            "type": "object",
+            "required": [
+                "path",
+                "type"
+            ],
+            "properties": {
+                "children": {
+                    "description": "子权限节点",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/role.RoleTreeItem"
+                    }
+                },
+                "path": {
+                    "description": "权限路径",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "权限类型：read 或 write",
+                    "type": "string",
+                    "enum": [
+                        "read",
+                        "write"
+                    ]
+                }
+            }
+        },
+        "role.RoleTreeItem": {
+            "type": "object",
+            "required": [
+                "path",
+                "type"
+            ],
+            "properties": {
+                "path": {
+                    "description": "权限路径",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "权限类型：read 或 write",
+                    "type": "string",
+                    "enum": [
+                        "read",
+                        "write"
+                    ]
+                }
+            }
+        },
+        "role.RoleUpdateRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "permissions"
+            ],
+            "properties": {
+                "description": {
+                    "description": "角色描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "角色名称",
+                    "type": "string"
+                },
+                "permissions": {
+                    "description": "权限树，不传表示不修改",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/role.RoleTree"
+                    }
+                }
+            }
+        },
+        "user.UserRequest": {
+            "type": "object",
+            "required": [
+                "account",
+                "departmentId",
+                "identity",
+                "password",
+                "roleId",
+                "username"
+            ],
             "properties": {
                 "account": {
+                    "description": "账号",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "创建时间，由服务端生成",
+                    "type": "string"
+                },
+                "departmentId": {
+                    "description": "部门ID",
                     "type": "string"
                 },
                 "email": {
+                    "description": "邮箱",
                     "type": "string"
                 },
+                "identity": {
+                    "description": "身份标识",
+                    "type": "string",
+                    "enum": [
+                        "admin",
+                        "user"
+                    ]
+                },
                 "password": {
+                    "description": "密码",
                     "type": "string"
                 },
                 "phone": {
                     "type": "string"
                 },
+                "roleId": {
+                    "description": "角色ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "用户状态",
+                    "enum": [
+                        "enabled",
+                        "disabled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StatusEnum"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "description": "更新时间，由服务端生成",
+                    "type": "string"
+                },
                 "username": {
+                    "description": "用户名",
                     "type": "string"
                 }
             }
         },
-        "internal_handler_permission_user.LoginRequest": {
+        "user.UserResponse": {
             "type": "object",
+            "required": [
+                "account",
+                "createdAt",
+                "departmentId",
+                "identity",
+                "roleId",
+                "status",
+                "updatedAt",
+                "userId",
+                "username"
+            ],
             "properties": {
                 "account": {
+                    "description": "账号",
                     "type": "string"
                 },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "internal_handler_permission_user.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
+                "createdAt": {
+                    "description": "创建时间",
                     "type": "string"
                 },
-                "user": {}
-            }
-        },
-        "internal_handler_permission_user.RegisterRequest": {
-            "type": "object",
-            "properties": {
-                "account": {
+                "departmentId": {
+                    "description": "部门ID",
                     "type": "string"
                 },
                 "email": {
+                    "description": "邮箱",
                     "type": "string"
                 },
-                "password": {
+                "identity": {
+                    "description": "身份标识",
                     "type": "string"
                 },
                 "phone": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "roleId": {
+                    "description": "角色ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "用户状态",
+                    "enum": [
+                        "enabled",
+                        "disabled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StatusEnum"
+                        }
+                    ]
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                },
+                "userId": {
+                    "description": "用户ID",
                     "type": "string"
                 },
                 "username": {
+                    "description": "用户名",
+                    "type": "string"
+                }
+            }
+        },
+        "user.UserUpdateRequest": {
+            "type": "object",
+            "required": [
+                "departmentId",
+                "identity",
+                "roleId",
+                "username"
+            ],
+            "properties": {
+                "departmentId": {
+                    "description": "部门ID",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "邮箱",
+                    "type": "string"
+                },
+                "identity": {
+                    "description": "身份标识",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "登录密码",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "roleId": {
+                    "description": "角色ID",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "用户状态",
+                    "enum": [
+                        "enabled",
+                        "disabled"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StatusEnum"
+                        }
+                    ]
+                },
+                "username": {
+                    "description": "用户名",
                     "type": "string"
                 }
             }

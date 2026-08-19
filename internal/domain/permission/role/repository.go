@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Vanselyn/vsb-server/pkg/idgen"
+	"github.com/Vanselyn/vsb-server/pkg/mongoFilter"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -39,7 +40,7 @@ func (r *RoleRepo) CreateRole(ctx context.Context, data *RoleRequest) (*RoleResp
 	now := time.Now()
 	permissions := data.Permissions
 	if permissions == nil {
-		permissions = []PermissionItem{}
+		permissions = []RoleTree{}
 	}
 
 	role := &RoleResponse{
@@ -127,16 +128,11 @@ func (r *RoleRepo) FindByName(ctx context.Context, name string) (*RoleResponse, 
 }
 
 func (r *RoleRepo) UpdateRole(ctx context.Context, data *RoleUpdateRequest) (*RoleResponse, error) {
-	update := bson.M{"updated_at": time.Now()}
-	if data.Name != "" {
-		update["name"] = data.Name
-	}
-	if data.Description != "" {
-		update["description"] = data.Description
-	}
-	if data.Permissions != nil {
-		update["permissions"] = data.Permissions
-	}
+	update := mongoFilter.BuildUpdate([]mongoFilter.UpdateRule{
+		{Value: data.Name, DBKey: "name"},
+		{Value: data.Description, DBKey: "description"},
+		{Value: data.Permissions, DBKey: "permissions"},
+	})
 
 	result, err := r.collection.UpdateOne(
 		ctx,

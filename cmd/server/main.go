@@ -1,12 +1,12 @@
-// @title VSB Server API
-// @version 1.0
-// @description VSB 服务端 API 文档
-// @host localhost:8080
-// @BasePath /
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-// @description Bearer JWT token，格式：Bearer {token}
+// @title						VSB Server API
+// @version					1.0
+// @description				VSB 服务端 API 文档
+// @host						localhost:8080
+// @BasePath					/
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description				Bearer JWT token，格式：Bearer {token}
 package main
 
 import (
