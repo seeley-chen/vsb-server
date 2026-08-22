@@ -104,10 +104,179 @@ definitions:
         description: 部门描述
         type: string
       name:
-        description: 部门名称
+        description: 部门名称，空表示不修改
         type: string
+    type: object
+  goods.GoodsRequest:
+    properties:
+      categoryId:
+        description: 所属分类 ID
+        type: string
+      images:
+        description: 商品图片 URL 列表
+        items:
+          type: string
+        type: array
+      name:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 商品名称（多语言）
+      remark:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 备注（多语言）
+      sku:
+        description: 商品 SKU
+        type: string
+      specs:
+        description: 商品规格列表
+        items:
+          $ref: '#/definitions/goods.GoodsSpec'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/models.StatusEnum'
+        description: 商品状态：未上架 或 已上架 或 已下架
+        enum:
+        - unlisted
+        - listed
+        - inactive
+      tags:
+        description: 商品标签
+        items:
+          type: string
+        type: array
     required:
     - name
+    type: object
+  goods.GoodsResponse:
+    properties:
+      categoryId:
+        description: 所属分类 ID
+        type: string
+      createdAt:
+        description: 创建时间
+        type: string
+      goodsId:
+        description: 商品 ID
+        type: string
+      images:
+        description: 商品图片 URL 列表
+        items:
+          type: string
+        type: array
+      name:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 商品名称（多语言）
+      remark:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 备注（多语言）
+      sku:
+        description: 商品 SKU
+        type: string
+      specs:
+        description: 商品规格列表
+        items:
+          $ref: '#/definitions/goods.GoodsSpec'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/models.StatusEnum'
+        description: 商品状态：未上架 或 已上架 或 已下架
+        enum:
+        - unlisted
+        - listed
+        - inactive
+      tags:
+        description: 商品标签
+        items:
+          type: string
+        type: array
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
+  goods.GoodsSpec:
+    properties:
+      color:
+        description: 颜色，可选
+        type: string
+      image:
+        description: 图片，可选
+        type: string
+      material:
+        description: 材质，可选
+        type: string
+      price:
+        description: 价格
+        type: number
+      size:
+        description: 尺寸
+        type: string
+      specId:
+        description: 规格 ID
+        type: string
+      specName:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 规格名称（多语言）
+      status:
+        description: 启用状态
+        type: boolean
+      variety:
+        description: 品种，可选
+        type: string
+      weight:
+        description: 重量
+        type: string
+    required:
+    - price
+    - size
+    - status
+    type: object
+  goods.GoodsUpdateRequest:
+    properties:
+      categoryId:
+        description: 所属分类 ID
+        type: string
+      images:
+        description: 商品图片 URL 列表
+        items:
+          type: string
+        type: array
+      name:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 商品名称（多语言）
+      remark:
+        allOf:
+        - $ref: '#/definitions/i18n.Locale'
+        description: 备注（多语言）
+      sku:
+        description: 商品 SKU
+        type: string
+      specs:
+        description: 商品规格列表
+        items:
+          $ref: '#/definitions/goods.GoodsSpec'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/models.StatusEnum'
+        description: 商品状态：未上架 或 已上架 或 已下架
+        enum:
+        - unlisted
+        - listed
+        - inactive
+      tags:
+        description: 商品标签
+        items:
+          type: string
+        type: array
+    required:
+    - specs
     type: object
   i18n.Locale:
     additionalProperties:
@@ -137,8 +306,8 @@ definitions:
     type: object
   models.StatusEnum:
     enum:
-    - active
     - unlisted
+    - active
     - listed
     - inactive
     - deleted
@@ -160,8 +329,8 @@ definitions:
       StatusPending: 待审核
       StatusUnlisted: 未上架
     x-enum-descriptions:
-    - 活跃中
     - 未上架
+    - 活跃中
     - 已上架
     - 已下架
     - 已删除
@@ -171,8 +340,8 @@ definitions:
     - 禁用
     - 启用
     x-enum-varnames:
-    - StatusActive
     - StatusUnlisted
+    - StatusActive
     - StatusListed
     - StatusInactive
     - StatusDeleted
@@ -291,16 +460,13 @@ definitions:
         description: 角色描述
         type: string
       name:
-        description: 角色名称
+        description: 角色名称，空表示不修改
         type: string
       permissions:
         description: 权限树，不传表示不修改
         items:
           $ref: '#/definitions/role.RoleTree'
         type: array
-    required:
-    - name
-    - permissions
     type: object
   user.UserRequest:
     properties:
@@ -335,8 +501,8 @@ definitions:
         - $ref: '#/definitions/models.StatusEnum'
         description: 用户状态
         enum:
-        - enabled
-        - disabled
+        - active
+        - inactive
       updatedAt:
         description: 更新时间，由服务端生成
         type: string
@@ -379,8 +545,8 @@ definitions:
         - $ref: '#/definitions/models.StatusEnum'
         description: 用户状态
         enum:
-        - enabled
-        - disabled
+        - active
+        - inactive
       updatedAt:
         description: 更新时间
         type: string
@@ -411,6 +577,9 @@ definitions:
         type: string
       identity:
         description: 身份标识
+        enum:
+        - admin
+        - user
         type: string
       password:
         description: 登录密码
@@ -426,16 +595,11 @@ definitions:
         - $ref: '#/definitions/models.StatusEnum'
         description: 用户状态
         enum:
-        - enabled
-        - disabled
+        - active
+        - inactive
       username:
-        description: 用户名
+        description: 用户名，空表示不修改
         type: string
-    required:
-    - departmentId
-    - identity
-    - roleId
-    - username
     type: object
 host: localhost:8080
 info:
@@ -1186,6 +1350,142 @@ paths:
       summary: 更新商品分类
       tags:
       - 商品分类
+  /api/product/goods/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建新商品，需要 Bearer Token
+      parameters:
+      - description: 商品信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/goods.GoodsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/goods.GoodsResponse'
+              type: object
+        "400":
+          description: 参数错误或 SKU 已存在
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建商品
+      tags:
+      - 商品管理
+  /api/product/goods/list:
+    get:
+      description: 分页获取商品列表，支持 SKU 模糊搜索、商品名称模糊搜索、分类 ID 精确匹配
+      parameters:
+      - description: 页码，默认 1
+        in: query
+        name: pageIndex
+        type: integer
+      - description: 每页数量，默认 20，上限 100
+        in: query
+        name: pageSize
+        type: integer
+      - description: SKU（模糊搜索）
+        in: query
+        name: sku
+        type: string
+      - description: 商品名称（模糊搜索）
+        in: query
+        name: name
+        type: string
+      - description: 分类 ID（精确匹配）
+        in: query
+        name: categoryId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 商品列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageData'
+              type: object
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 获取商品列表
+      tags:
+      - 商品管理
+  /api/product/goods/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 根据商品 ID 更新商品信息，空字段表示不修改，需要 Bearer Token
+      parameters:
+      - description: 商品 ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 商品信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/goods.GoodsUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/goods.GoodsResponse'
+              type: object
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新商品
+      tags:
+      - 商品管理
 securityDefinitions:
   ApiKeyAuth:
     description: Bearer JWT token，格式：Bearer {token}

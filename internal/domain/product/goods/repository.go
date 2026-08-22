@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Vanselyn/vsb-server/internal/models"
 	"github.com/Vanselyn/vsb-server/pkg/idgen"
 	"github.com/Vanselyn/vsb-server/pkg/mongoFilter"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,7 +16,7 @@ type GoodsRepository struct {
 	collection *mongo.Collection
 }
 
-func NewGoodsRepository(db *mongo.Database) *GoodsRepository {
+func NewGoodsRepo(db *mongo.Database) *GoodsRepository {
 	return &GoodsRepository{collection: db.Collection("goods")}
 }
 
@@ -49,8 +50,8 @@ func (r *GoodsRepository) CreateGoods(ctx context.Context, data *GoodsRequest) (
 		Remark:     data.Remark,
 		Images:     data.Images,
 		CategoryID: data.CategoryID,
-		Specs:      data.Specs,
-		Status:     data.Status,
+		Specs:      r.CreateSpecsId(data.Specs),
+		Status:     models.StatusUnlisted,
 		Tags:       data.Tags,
 		CreatedAt:  now,
 		UpdatedAt:  now,
@@ -137,7 +138,7 @@ func (r *GoodsRepository) UpdateGoods(ctx context.Context, data *GoodsUpdateRequ
 		{Value: data.Remark, DBKey: "remark"},
 		{Value: data.Images, DBKey: "images"},
 		{Value: data.CategoryID, DBKey: "category_id"},
-		{Value: data.Specs, DBKey: "specs"},
+		{Value: r.CreateSpecsId(data.Specs), DBKey: "specs"},
 		{Value: data.Status, DBKey: "status"},
 		{Value: data.Tags, DBKey: "tags"},
 	})
@@ -162,4 +163,16 @@ func (r *GoodsRepository) DeleteGoods(ctx context.Context, goodsId string) error
 		return mongo.ErrNoDocuments
 	}
 	return nil
+}
+
+// 创建子规格ID
+// 循环specs，如果specsId为空,则specsId = idgen.GenerateUuid()
+// 返回更新后的specs列表
+func (r *GoodsRepository) CreateSpecsId(specs []GoodsSpec) []GoodsSpec {
+	for _, spec := range specs {
+		if spec.SpecID == "" {
+			spec.SpecID = idgen.GenerateUuid()
+		}
+	}
+	return specs
 }

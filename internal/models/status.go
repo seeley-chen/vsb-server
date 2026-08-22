@@ -5,8 +5,8 @@ package models
 type StatusEnum string
 
 const (
-	StatusActive   StatusEnum = "active"   // 活跃中
 	StatusUnlisted StatusEnum = "unlisted" // 未上架
+	StatusActive   StatusEnum = "active"   // 活跃中
 	StatusListed   StatusEnum = "listed"   // 已上架
 	StatusInactive StatusEnum = "inactive" // 已下架
 	StatusDeleted  StatusEnum = "deleted"  // 已删除

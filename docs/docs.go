@@ -1246,6 +1246,232 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/product/goods/create": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "创建新商品，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品管理"
+                ],
+                "summary": "创建商品",
+                "parameters": [
+                    {
+                        "description": "商品信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/goods.GoodsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/goods.GoodsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误或 SKU 已存在",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/product/goods/list": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "分页获取商品列表，支持 SKU 模糊搜索、商品名称模糊搜索、分类 ID 精确匹配",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品管理"
+                ],
+                "summary": "获取商品列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "页码，默认 1",
+                        "name": "pageIndex",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量，默认 20，上限 100",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "SKU（模糊搜索）",
+                        "name": "sku",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "商品名称（模糊搜索）",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "分类 ID（精确匹配）",
+                        "name": "categoryId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "商品列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.PageData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/product/goods/update/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据商品 ID 更新商品信息，空字段表示不修改，需要 Bearer Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "商品管理"
+                ],
+                "summary": "更新商品",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "商品 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "商品信息",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/goods.GoodsUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/goods.GoodsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "未授权",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1408,17 +1634,275 @@ const docTemplate = `{
         },
         "department.DepartmentUpdateRequest": {
             "type": "object",
-            "required": [
-                "name"
-            ],
             "properties": {
                 "description": {
                     "description": "部门描述",
                     "type": "string"
                 },
                 "name": {
-                    "description": "部门名称",
+                    "description": "部门名称，空表示不修改",
                     "type": "string"
+                }
+            }
+        },
+        "goods.GoodsRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "categoryId": {
+                    "description": "所属分类 ID",
+                    "type": "string"
+                },
+                "images": {
+                    "description": "商品图片 URL 列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "商品名称（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "remark": {
+                    "description": "备注（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "sku": {
+                    "description": "商品 SKU",
+                    "type": "string"
+                },
+                "specs": {
+                    "description": "商品规格列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/goods.GoodsSpec"
+                    }
+                },
+                "status": {
+                    "description": "商品状态：未上架 或 已上架 或 已下架",
+                    "enum": [
+                        "unlisted",
+                        "listed",
+                        "inactive"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StatusEnum"
+                        }
+                    ]
+                },
+                "tags": {
+                    "description": "商品标签",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "goods.GoodsResponse": {
+            "type": "object",
+            "properties": {
+                "categoryId": {
+                    "description": "所属分类 ID",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "goodsId": {
+                    "description": "商品 ID",
+                    "type": "string"
+                },
+                "images": {
+                    "description": "商品图片 URL 列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "商品名称（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "remark": {
+                    "description": "备注（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "sku": {
+                    "description": "商品 SKU",
+                    "type": "string"
+                },
+                "specs": {
+                    "description": "商品规格列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/goods.GoodsSpec"
+                    }
+                },
+                "status": {
+                    "description": "商品状态：未上架 或 已上架 或 已下架",
+                    "enum": [
+                        "unlisted",
+                        "listed",
+                        "inactive"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StatusEnum"
+                        }
+                    ]
+                },
+                "tags": {
+                    "description": "商品标签",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "goods.GoodsSpec": {
+            "type": "object",
+            "required": [
+                "price",
+                "size",
+                "status"
+            ],
+            "properties": {
+                "color": {
+                    "description": "颜色，可选",
+                    "type": "string"
+                },
+                "image": {
+                    "description": "图片，可选",
+                    "type": "string"
+                },
+                "material": {
+                    "description": "材质，可选",
+                    "type": "string"
+                },
+                "price": {
+                    "description": "价格",
+                    "type": "number"
+                },
+                "size": {
+                    "description": "尺寸",
+                    "type": "string"
+                },
+                "specId": {
+                    "description": "规格 ID",
+                    "type": "string"
+                },
+                "specName": {
+                    "description": "规格名称（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "启用状态",
+                    "type": "boolean"
+                },
+                "variety": {
+                    "description": "品种，可选",
+                    "type": "string"
+                },
+                "weight": {
+                    "description": "重量",
+                    "type": "string"
+                }
+            }
+        },
+        "goods.GoodsUpdateRequest": {
+            "type": "object",
+            "required": [
+                "specs"
+            ],
+            "properties": {
+                "categoryId": {
+                    "description": "所属分类 ID",
+                    "type": "string"
+                },
+                "images": {
+                    "description": "商品图片 URL 列表",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "商品名称（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "remark": {
+                    "description": "备注（多语言）",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/i18n.Locale"
+                        }
+                    ]
+                },
+                "sku": {
+                    "description": "商品 SKU",
+                    "type": "string"
+                },
+                "specs": {
+                    "description": "商品规格列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/goods.GoodsSpec"
+                    }
+                },
+                "status": {
+                    "description": "商品状态：未上架 或 已上架 或 已下架",
+                    "enum": [
+                        "unlisted",
+                        "listed",
+                        "inactive"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.StatusEnum"
+                        }
+                    ]
+                },
+                "tags": {
+                    "description": "商品标签",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -1465,8 +1949,8 @@ const docTemplate = `{
         "models.StatusEnum": {
             "type": "string",
             "enum": [
-                "active",
                 "unlisted",
+                "active",
                 "listed",
                 "inactive",
                 "deleted",
@@ -1489,8 +1973,8 @@ const docTemplate = `{
                 "StatusUnlisted": "未上架"
             },
             "x-enum-descriptions": [
-                "活跃中",
                 "未上架",
+                "活跃中",
                 "已上架",
                 "已下架",
                 "已删除",
@@ -1501,8 +1985,8 @@ const docTemplate = `{
                 "启用"
             ],
             "x-enum-varnames": [
-                "StatusActive",
                 "StatusUnlisted",
+                "StatusActive",
                 "StatusListed",
                 "StatusInactive",
                 "StatusDeleted",
@@ -1661,17 +2145,13 @@ const docTemplate = `{
         },
         "role.RoleUpdateRequest": {
             "type": "object",
-            "required": [
-                "name",
-                "permissions"
-            ],
             "properties": {
                 "description": {
                     "description": "角色描述",
                     "type": "string"
                 },
                 "name": {
-                    "description": "角色名称",
+                    "description": "角色名称，空表示不修改",
                     "type": "string"
                 },
                 "permissions": {
@@ -1732,8 +2212,8 @@ const docTemplate = `{
                 "status": {
                     "description": "用户状态",
                     "enum": [
-                        "enabled",
-                        "disabled"
+                        "active",
+                        "inactive"
                     ],
                     "allOf": [
                         {
@@ -1796,8 +2276,8 @@ const docTemplate = `{
                 "status": {
                     "description": "用户状态",
                     "enum": [
-                        "enabled",
-                        "disabled"
+                        "active",
+                        "inactive"
                     ],
                     "allOf": [
                         {
@@ -1821,12 +2301,6 @@ const docTemplate = `{
         },
         "user.UserUpdateRequest": {
             "type": "object",
-            "required": [
-                "departmentId",
-                "identity",
-                "roleId",
-                "username"
-            ],
             "properties": {
                 "departmentId": {
                     "description": "部门ID",
@@ -1838,7 +2312,11 @@ const docTemplate = `{
                 },
                 "identity": {
                     "description": "身份标识",
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "admin",
+                        "user"
+                    ]
                 },
                 "password": {
                     "description": "登录密码",
@@ -1855,8 +2333,8 @@ const docTemplate = `{
                 "status": {
                     "description": "用户状态",
                     "enum": [
-                        "enabled",
-                        "disabled"
+                        "active",
+                        "inactive"
                     ],
                     "allOf": [
                         {
@@ -1865,7 +2343,7 @@ const docTemplate = `{
                     ]
                 },
                 "username": {
-                    "description": "用户名",
+                    "description": "用户名，空表示不修改",
                     "type": "string"
                 }
             }
